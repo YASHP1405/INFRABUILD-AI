@@ -1,4 +1,4 @@
-from speech_service import transcribe_audio
+from backend.speech_service import transcribe_audio
 from dotenv import load_dotenv
 import os
 import re
@@ -25,17 +25,17 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB limit
 os.makedirs("uploads", exist_ok=True)
 
 # ── Placement Engine Blueprint ──
-from placement_engine import placement_bp
+from backend.placement_engine import placement_bp
 
 app.register_blueprint(placement_bp)
 
 # ── GitHub Intelligence Blueprint ──
-from github_analyzer import github_bp
+from backend.github_analyzer import github_bp
 
 app.register_blueprint(github_bp)
 
 # ── Live Coding Verifier Blueprint ──
-from coding_verifier import verify_bp
+from backend.coding_verifier import verify_bp
 
 app.register_blueprint(verify_bp)
 
