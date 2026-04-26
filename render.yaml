@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: infrabuild-ai
+    runtime: python
+    pythonVersion: 3.11
+    
+    # Build command - install dependencies from backend directory
+    buildCommand: "pip install -r backend/requirements.txt"
+    
+    # Start command - run gunicorn from backend directory
+    startCommand: "cd backend && gunicorn app:app"
+    
+    # Environment
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 8000
+      # Add your API keys in Render dashboard:
+      # - GROQ_API_KEY
+      # - GITHUB_TOKEN
+      # - FLASK_SECRET_KEY
