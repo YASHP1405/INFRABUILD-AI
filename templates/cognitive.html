@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2: Cognitive & Engineering Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            line-height: 1.6;
+            user-select: none;
+            /* Anti-cheat */
+        }
+        
+        /* Custom Modal for Cheat Warning */
+        #cheatModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .cheat-content {
+            background: #1e1e2d;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #ff4d4d;
+            max-width: 400px;
+        }
+        .cheat-content h3 { color: #ff4d4d; margin-top: 0; }
+        .cheat-content p { color: #ccc; }
+        .cheat-btn {
+            background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 15px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            border-left: 5px solid var(--accent);
+            padding-left: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin: 0;
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        /* Question Cards */
+        .q-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .q-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .q-number {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        /* Options */
+        .option {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 2px solid #334155;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.3);
+            accent-color: var(--accent);
+        }
+
+        /* Voice Section */
+        .voice-section {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px dashed var(--accent);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0f172a;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-record {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-stop {
+            background: var(--muted);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #transcript {
+            margin-top: 15px;
+            font-style: italic;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .q-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body oncopy="return false" oncontextmenu="return false">
+    <a href="{{ url_for('dashboard') }}" style="position: fixed; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; z-index: 1000; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; line-height: 1;">
+        <span style="margin-right: 5px;">&larr;</span> Back to Dashboard
+    </a>
+
+    <div class="container">
+        <div class="header">
+            {% if mode == 'verbal' %}
+            <h1>Verbal Reasoning Phase</h1>
+            <p>Vocabulary & Language Proficiency Evaluation</p>
+            {% else %}
+            <h1>Cognitive Phase</h1>
+            <p>Aptitude & Engineering Principles Evaluation</p>
+            {% endif %}
+        </div>
+
+        <form id="cogForm" data-total="{{ questions | length }}">
+            {% for q in questions %}
+            {% set outer_loop = loop %}
+            <div class="q-card">
+                <span class="q-text">
+                    <span class="q-number">Q{{ outer_loop.index }}:</span> {{ q.question }}
+                </span>
+
+                <div class="options-group">
+                    {% for opt in q.options %}
+                    <label class="option">
+                        <input type="radio" name="q{{ outer_loop.index0 }}" value="{{ opt }}" required>
+                        <span>{{ opt }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="voice-section">
+                <h3>🎤 Verbal Reasoning (Optional)</h3>
+                <p style="font-size: 0.9rem; color: var(--muted);">Explain your logic for the most difficult question
+                    above.</p>
+                <div class="voice-controls">
+                    <button type="button" id="start-btn" class="btn btn-record">Start Recording</button>
+                    <button type="button" id="stop-btn" class="btn btn-stop" disabled>Stop</button>
+                </div>
+                <p id="transcript">Ready to record...</p>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="submitCognitive()">
+                Submit & Proceed to Next Round →
+            </button>
+        </form>
+    </div>
+
+    <!-- Cheat Modal -->
+    <div id="cheatModal">
+        <div class="cheat-content">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Focus Lost Detected</h3>
+            <p id="cheatMsg">You switched tabs or lost focus. This is a violation of the test rules.</p>
+            <button class="cheat-btn" onclick="dismissCheat()">I Understand</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- MCQ Submission Logic --- */
+        function submitCognitive() {
+            const form = document.getElementById('cogForm');
+            const totalQuestions = parseInt(form.getAttribute('data-total'));
+            const formData = new FormData(form);
+            let answers = [];
+
+            // Validation: Check if all questions are answered
+            for (let i = 0; i < totalQuestions; i++) {
+                const val = formData.get('q' + i);
+                if (!val) {
+                    alert(`Please answer Question ${i + 1} before proceeding.`);
+                    return;
+                }
+                answers.push(val);
+            }
+
+            // UI Feedback
+            const submitBtn = document.querySelector('.btn-primary');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Processing Score...";
+
+            fetch('/submit_cognitive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert("Submission error. Please check your connection.");
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Proceed to Coding Round →";
+                    }
+                })
+                .catch(err => console.error("Error:", err));
+        }
+
+        /* --- Integrated Voice Recording Logic --- */
+        let mediaRecorder;
+        let audioChunks = [];
+        const startBtn = document.getElementById("start-btn");
+        const stopBtn = document.getElementById("stop-btn");
+        const transcriptText = document.getElementById("transcript");
+
+        startBtn.onclick = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+                mediaRecorder.onstop = async () => {
+                    transcriptText.innerText = "Transcribing logic...";
+                    const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                    const voiceData = new FormData();
+                    voiceData.append("audio", audioBlob);
+
+                    try {
+                        // Using your existing voice-answer endpoint
+                        const response = await fetch("/submit_resume_voice", {
+                            method: "POST",
+                            body: voiceData
+                        });
+                        const result = await response.json();
+                        transcriptText.innerText = "Captured: " + (result.transcript || "Audio processed successfully.");
+                    } catch (err) {
+                        transcriptText.innerText = "Transcription failed, but MCQ data will still be saved.";
+                    }
+                };
+
+                mediaRecorder.start();
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startBtn.innerText = "Recording...";
+                transcriptText.innerText = "Listening to your logic...";
+            } catch (err) {
+                alert("Microphone access denied or not found.");
+            }
+        };
+
+        stopBtn.onclick = () => {
+            mediaRecorder.stop();
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            startBtn.innerText = "Start Recording";
+        };
+
+        // --- Proctoring Logic ---
+        let violations = 0;
+        let cheatCooldown = false;
+        const cheatModal = document.getElementById("cheatModal");
+        const cheatMsg = document.getElementById("cheatMsg");
+
+        function handleCheat() {
+            if (cheatCooldown || document.getElementById("cheatModal").style.display === "flex") return;
+            
+            cheatCooldown = true;
+            violations++;
+            fetch("/log_cheat", { method: "POST" });
+            
+            if (violations >= 2) {
+                cheatMsg.innerText = `You have exceeded the maximum allowed violations. Your test is terminated.`;
+                cheatModal.style.display = "flex";
+                setTimeout(() => window.location.href = "/dashboard", 3000);
+            } else {
+                cheatMsg.innerText = `WARNING: Tab switch / focus lost detected (${violations}/2). This has been logged. Do not switch tabs again.`;
+                cheatModal.style.display = "flex";
+            }
+        }
+
+        window.dismissCheat = function() {
+            cheatModal.style.display = "none";
+            setTimeout(() => cheatCooldown = false, 1000);
+        }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                handleCheat();
+            }
+        });
+        
+        window.addEventListener("blur", function () {
+            handleCheat();
+        });
+    </script>
+</body>
+
+</html>

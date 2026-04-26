@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Coding Round | Secure Editor</title>
+    <!-- Fonts + Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background: #090b14;
+            color: white;
+            height: 100vh;
+            overflow: hidden; /* Prevent body scroll */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Modal for Cheat Warning */
+        #cheatModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .cheat-content {
+            background: #1e1e2d;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #ff4d4d;
+            max-width: 400px;
+        }
+        .cheat-content h3 { color: #ff4d4d; margin-top: 0; }
+        .cheat-content p { color: #ccc; }
+        .cheat-btn {
+            background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 15px;
+        }
+
+        /* Top Navbar for Editor */
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .editor-header .logo {
+            font-weight: 700;
+            font-size: 20px;
+            background: linear-gradient(135deg, #00eaff, #6a5cff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .editor-container {
+            display: flex;
+            flex-grow: 1; /* Take remaining height */
+            overflow: hidden;
+        }
+
+        /* Left Side: Problem Statement */
+        .problem {
+            width: 35%;
+            padding: 30px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            overflow-y: auto;
+        }
+
+        .problem h2 {
+            margin-top: 0;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weightage-badge {
+            background: rgba(106, 92, 255, 0.15);
+            color: #6a5cff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(106, 92, 255, 0.3);
+        }
+
+        .problem h3 {
+            color: #00eaff;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .problem p {
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        /* Right Side: Code Editor */
+        .editor-area {
+            width: 65%;
+            display: flex;
+            flex-direction: column;
+            background: #0f111a;
+        }
+
+        .controls {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lang-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #6a5cff, #00eaff);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(106, 92, 255, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 92, 255, 0.4);
+        }
+
+        textarea {
+            flex-grow: 1;
+            background: transparent;
+            color: #e6e6e6;
+            font-family: 'Courier New', monospace;
+            padding: 25px;
+            font-size: 16px;
+            border: none;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        /* Console Output */
+        #output {
+            padding: 15px 25px;
+            background: #07080c;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            height: 120px;
+            font-family: monospace;
+            color: #00c896;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+
+        /* Bottom Logic Recording Bar */
+        .logic-bar {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .record-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .record-info p {
+            margin: 0;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .record-btn {
+            background: rgba(255, 77, 77, 0.1);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .record-btn:hover {
+            background: rgba(255, 77, 77, 0.2);
+        }
+
+        .record-btn.recording {
+            background: #ff4d4d;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+        }
+    </style>
+</head>
+
+<body oncopy="return false" onpaste="return false">
+    <!-- Navbar -->
+    <div class="editor-header">
+        <div class="logo"><i class="fa-solid fa-code"></i> AI Coding Simulator</div>
+        <a href="{{ url_for('dashboard') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Exit Challenge</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="editor-container">
+        <!-- Left Sidebar: Problem -->
+        <div class="problem">
+            <h2>Algorithmic Challenge</h2>
+            <div class="weightage-badge">Round Weightage: 45%</div>
+            <hr style="border: 0.5px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px;">
+            <h3>Task Assignment:</h3>
+            <p>{{ question }}</p>
+        </div>
+
+        <!-- Right Side: Editor -->
+        <div class="editor-area">
+            <div class="controls">
+                <div class="lang-badge">Language: Python 3</div>
+                <button onclick="runCode()" class="submit-btn"><i class="fa-solid fa-play"></i> Submit & Run</button>
+            </div>
+            
+            <textarea id="codeEditor" spellcheck="false" placeholder="# Write your optimized Python code here...&#10;# Avoid cheating; out-of-focus tabs will be tracked."></textarea>
+            
+            <div id="output">
+                Console output will appear here...
+            </div>
+
+            <!-- Bottom Logic Bar -->
+            <div class="logic-bar">
+                <div class="record-info">
+                    <button id="recordBtn" class="record-btn"><i class="fa-solid fa-microphone"></i> Start Recording Logic</button>
+                    <p>Explain your logical approach while coding.</p>
+                </div>
+                <div id="transcript" style="color: #64ffda; font-weight: 500;">Audio status will display here...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cheat Modal -->
+    <div id="cheatModal">
+        <div class="cheat-content">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Focus Lost Detected</h3>
+            <p id="cheatMsg">You switched tabs or lost focus. This is a violation of the test rules.</p>
+            <button class="cheat-btn" onclick="dismissCheat()">I Understand</button>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let finalAudioBlob = null;
+        const recordBtn = document.getElementById("recordBtn");
+        const transcriptText = document.getElementById("transcript");
+
+        // Toggle Recording
+        recordBtn.onclick = async () => {
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+                    mediaRecorder.onstop = () => {
+                        finalAudioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                        transcriptText.innerText = "Audio logic recorded! Ready to submit.";
+                    };
+
+                    mediaRecorder.start();
+                    recordBtn.innerText = "🛑 Stop Recording";
+                    recordBtn.style.background = "#8892b0";
+                    transcriptText.innerText = "Recording logic...";
+                } catch (err) {
+                    alert("Microphone access denied.");
+                }
+            } else {
+                mediaRecorder.stop();
+                recordBtn.innerText = "🎤 Re-record Logic";
+                recordBtn.style.background = "#ff4d4d";
+            }
+        };
+
+        // Submit Everything
+        async function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const outputDiv = document.getElementById('output');
+
+            if (!code.trim()) {
+                alert("Please write some code before submitting.");
+                return;
+            }
+
+            outputDiv.innerHTML = "Evaluating code and reasoning... Please wait...";
+
+            const formData = new FormData();
+            formData.append("code", code);
+            if (finalAudioBlob) {
+                formData.append("audio", finalAudioBlob);
+            }
+
+            try {
+                const response = await fetch('/submit_code', {
+                    method: 'POST',
+                    body: formData // Note: no Content-Type header needed for FormData
+                });
+                const data = await response.json();
+
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    outputDiv.innerHTML = `Result Error: ${data.error || "Unknown error."}`;
+                }
+            } catch (err) {
+                outputDiv.innerHTML = "Error communicating with server.";
+                console.error(err);
+            }
+        }
+
+        // --- Proctoring Logic ---
+        let violations = 0;
+        let cheatCooldown = false;
+        const cheatModal = document.getElementById("cheatModal");
+        const cheatMsg = document.getElementById("cheatMsg");
+
+        function handleCheat() {
+            if (cheatCooldown || document.getElementById("cheatModal").style.display === "flex") return;
+            
+            cheatCooldown = true;
+            violations++;
+            fetch("/log_cheat", { method: "POST" });
+            
+            if (violations >= 2) {
+                cheatMsg.innerText = `You have exceeded the maximum allowed violations. Your test is terminated.`;
+                cheatModal.style.display = "flex";
+                setTimeout(() => window.location.href = "/dashboard", 3000);
+            } else {
+                cheatMsg.innerText = `WARNING: Tab switch / focus lost detected (${violations}/2). This has been logged. Do not switch tabs again.`;
+                cheatModal.style.display = "flex";
+            }
+        }
+
+        window.dismissCheat = function() {
+            cheatModal.style.display = "none";
+            setTimeout(() => cheatCooldown = false, 1000);
+        }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                handleCheat();
+            }
+        });
+
+        window.addEventListener("blur", function () {
+            // Prevent blur triggering if clicking inside the iframe or window
+            if(document.activeElement === document.getElementById('codeEditor')) return;
+            handleCheat();
+        });
+    </script>
+</body>
+
+</html>

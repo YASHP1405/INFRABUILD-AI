@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: Resume Analysis | Secure Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a192f;
+            --card-bg: #112240;
+            --accent: #64ffda;
+            --text-main: #e6f1ff;
+            --text-dim: #8892b0;
+            --danger: #ff4d4d;
+            --warning: #f7d794;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .interview-container {
+            max-width: 850px;
+            width: 100%;
+        }
+
+        .header-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: rgba(100, 255, 218, 0.1);
+            color: var(--accent);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid var(--accent);
+        }
+
+        #timer {
+            font-family: 'Courier New', monospace;
+            color: var(--warning);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .main-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h2 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: rgba(136, 146, 176, 0.1);
+            color: var(--text-dim);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(136, 146, 176, 0.2);
+        }
+
+        .question-box {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin: 30px 0;
+            color: var(--text-main);
+            border-left: 4px solid var(--accent);
+            padding-left: 20px;
+            min-height: 60px;
+        }
+
+        .feedback-toast {
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            display: none;
+            /* Hidden by default */
+        }
+
+        textarea {
+            width: 100%;
+            background: #0a192f;
+            border: 1px solid #233554;
+            border-radius: 12px;
+            padding: 20px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+            margin-bottom: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .submit-btn {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 12px 35px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: rgba(100, 255, 218, 0.1);
+        }
+
+        .voice-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .recording-active {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .proctoring-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .ai-voice-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .ai-voice-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 1.2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(0.7);
+            }
+        }
+
+        .ai-voice-indicator.muted .dot {
+            animation: none;
+            background: var(--text-dim);
+        }
+
+        .ai-voice-indicator.muted {
+            color: var(--text-dim);
+        }
+
+        .mute-btn {
+            background: transparent;
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mute-btn:hover {
+            background: rgba(100, 255, 218, 0.08);
+        }
+    </style>
+</head>
+
+<body oncopy="return false" onpaste="return false" oncontextmenu="return false">
+    <a href="{{ url_for('dashboard') }}" style="position: fixed; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; padding: 10px 15px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; z-index: 1000; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; line-height: 1;">
+        <span style="margin-right: 5px;">&larr;</span> Back to Dashboard
+    </a>
+
+    <div class="interview-container">
+        <div class="header-strip">
+            <div class="badge">PHASE 1: ADAPTIVE RESUME ROUND</div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div id="aiVoiceIndicator" class="ai-voice-indicator">
+                    <span class="dot"></span>
+                    <span id="aiVoiceLabel">AI Speaking</span>
+                </div>
+                <button id="muteBtn" class="mute-btn" onclick="toggleMute()">🔇 Mute AI</button>
+                <div id="timer">Time Left: 20:00</div>
+            </div>
+        </div>
+
+        <div class="main-card">
+            {% if skills %}
+            <div style="margin-bottom: 20px;">
+                <p style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;">
+                    Detected Expertise:</p>
+                {% for skill in skills %}<span class="skill-tag">{{ skill }}</span>{% endfor %}
+            </div>
+            {% endif %}
+
+            <h2>Current Question</h2>
+            <div id="questionDisplay" class="question-box">
+                {{ question }}
+            </div>
+
+            <div id="feedbackBox" class="feedback-toast">
+            </div>
+
+            <textarea id="answerInput" rows="6" placeholder="Type your response or use the microphone..."></textarea>
+
+            <div class="btn-group">
+                <button type="button" id="recordBtn" class="voice-btn">🎤 Start Voice Answer</button>
+                <button type="button" id="submitBtn" class="submit-btn">Submit Answer →</button>
+            </div>
+            <p id="statusMsg" style="font-size: 0.8rem; color: var(--accent); margin-top: 10px;"></p>
+        </div>
+
+        <div class="proctoring-footer">
+            Strict Proctoring Active. Copy/Paste/Tab-Switching is monitored.
+        </div>
+    </div>
+
+
+
+    <script>
+        // === AI VOICE (Text-to-Speech) ENGINE ===
+        let isMuted = false;
+        let currentUtterance = null;
+        const aiVoiceIndicator = document.getElementById('aiVoiceIndicator');
+        const muteBtn = document.getElementById('muteBtn');
+        const aiVoiceLabel = document.getElementById('aiVoiceLabel');
+
+        function speak(text, onDone) {
+            if (isMuted || !window.speechSynthesis) {
+                if (onDone) onDone();
+                return;
+            }
+            window.speechSynthesis.cancel(); // stop any ongoing speech
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.rate = 0.95;
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1;
+
+            // Prefer a neutral/professional voice if available
+            const voices = window.speechSynthesis.getVoices();
+            const preferred = voices.find(v =>
+                v.name.includes('Google') || v.name.includes('Samantha') ||
+                v.name.includes('Microsoft') || v.lang.startsWith('en')
+            );
+            if (preferred) currentUtterance.voice = preferred;
+
+            aiVoiceIndicator.classList.remove('muted');
+            aiVoiceLabel.textContent = 'AI Speaking...';
+
+            currentUtterance.onend = () => {
+                aiVoiceLabel.textContent = 'AI Ready';
+                if (onDone) onDone();
+            };
+            currentUtterance.onerror = () => {
+                aiVoiceLabel.textContent = 'AI Ready';
+                if (onDone) onDone();
+            };
+
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                window.speechSynthesis.cancel();
+                muteBtn.textContent = '🔊 Unmute AI';
+                aiVoiceIndicator.classList.add('muted');
+                aiVoiceLabel.textContent = 'AI Muted';
+            } else {
+                muteBtn.textContent = '🔇 Mute AI';
+                aiVoiceIndicator.classList.remove('muted');
+                aiVoiceLabel.textContent = 'AI Ready';
+            }
+        }
+
+        // Speak the first question on page load
+        window.speechSynthesis.onvoiceschanged = () => {
+            const firstQuestion = document.getElementById('questionDisplay').textContent.trim();
+            if (firstQuestion) speak("Welcome to the interview. Your first question is: " + firstQuestion);
+        };
+        // Fallback for browsers where voices load immediately
+        setTimeout(() => {
+            const firstQuestion = document.getElementById('questionDisplay').textContent.trim();
+            if (firstQuestion && window.speechSynthesis.getVoices().length > 0) {
+                speak("Welcome to the interview. Your first question is: " + firstQuestion);
+            }
+        }, 800);
+
+        // 1. Voice recording logic
+        let mediaRecorder;
+        let audioChunks = [];
+        const recordBtn = document.getElementById('recordBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const answerInput = document.getElementById('answerInput');
+        const questionDisplay = document.getElementById('questionDisplay');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const statusMsg = document.getElementById('statusMsg');
+
+        recordBtn.onclick = async () => {
+            if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    sendData(audioBlob, true);
+                };
+
+                mediaRecorder.start();
+                recordBtn.textContent = "🛑 Stop & Submit Voice";
+                recordBtn.classList.add('recording-active');
+                statusMsg.textContent = "Recording... Distil-Whisper ready.";
+            } else {
+                mediaRecorder.stop();
+                recordBtn.textContent = "🎤 Start Voice Answer";
+                recordBtn.classList.remove('recording-active');
+            }
+        };
+
+        // 2. Text Submit Logic
+        submitBtn.onclick = () => {
+            const text = answerInput.value.trim();
+            if (!text) return alert("Please provide an answer.");
+            sendData(text, false);
+        };
+
+        // 3. Central Data Sending Function (AJAX)
+        async function sendData(data, isVoice) {
+            statusMsg.textContent = "AI is evaluating your response...";
+            const formData = new FormData();
+
+            let endpoint = isVoice ? "/submit_resume_voice" : "/submit_resume_answer";
+
+            if (isVoice) {
+                formData.append('audio', data);
+            } else {
+                formData.append('answer', data);
+            }
+
+            try {
+                const response = await fetch(endpoint, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (result.redirect) {
+                    window.location.href = result.redirect;
+                    return;
+                }
+
+                const nextQuestion = result.question || result.next_question;
+                const feedbackText = result.feedback || '';
+
+                // Show feedback in the UI
+                if (feedbackText) {
+                    feedbackBox.style.display = "block";
+                    feedbackBox.innerHTML = `<strong
+        style="text-transform: uppercase; font-size: 0.7rem; display: block; margin-bottom: 5px;">AI
+        Observation:</strong> ${feedbackText}`;
+                }
+
+                // Clear Input
+                answerInput.value = "";
+                statusMsg.textContent = isVoice ? `Transcribed: "${result.transcript || 'Audio received'}"` : "Answer submitted successfully.";
+
+                // AI speaks feedback first, then the next question
+                if (feedbackText && nextQuestion) {
+                    speak("Feedback: " + feedbackText, () => {
+                        questionDisplay.textContent = nextQuestion;
+                        speak("Next question: " + nextQuestion);
+                    });
+                } else if (nextQuestion) {
+                    questionDisplay.textContent = nextQuestion;
+                    speak("Next question: " + nextQuestion);
+                } else if (feedbackText) {
+                    speak("Feedback: " + feedbackText);
+                }
+
+            } catch (err) {
+                console.error(err);
+                statusMsg.textContent = "Error communicating with AI server.";
+            }
+        }
+
+        // 4. Timer & Proctoring (Keep your existing code)
+        let timeLeft = 1200;
+        const timerElement = document.getElementById('timer');
+        setInterval(() => {
+            let min = Math.floor(timeLeft / 60);
+            let sec = timeLeft % 60;
+            timerElement.innerHTML = `Time Left: ${min}:${sec < 10 ? '0' + sec : sec}`; if (timeLeft <= 0)
+                window.location.href = "/cognitive"; timeLeft--;
+        }, 1000); let violations = 0; function handleCheat() {
+            violations++; fetch("/log_cheat", { method: "POST" }); alert(`WARNING: Tab switch / focus lost detected
+        (${violations}/2). This has been logged.`); if (violations >= 2) window.location.href = "/dashboard";
+        }
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                handleCheat();
+            }
+        });
+
+        document.onkeydown = (e) => {
+            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        };
+    </script>
+
+</body>
+
+</html>

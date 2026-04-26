@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Automation Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: #0b0f1a;
+      color: white;
+    }
+
+    /* HEADER */
+    header {
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+      font-size: 22px;
+    }
+
+    /* MAIN SPLIT */
+    .main-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 80vh;
+    }
+
+    /* LEFT SIDE */
+    .left-panel {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .ai-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .ai-card h1 {
+      font-size: 28px;
+    }
+
+    .ai-card p {
+      opacity: 0.8;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6a5cff, #00eaff);
+      color: white;
+    }
+
+    .btn-secondary {
+      border: 1px solid white;
+      color: white;
+    }
+
+    /* RIGHT SIDE */
+    .right-panel {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 20px;
+      width: 300px;
+    }
+
+    .login-card h2 {
+      text-align: center;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 10px;
+      background: #6a5cff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* WORKFLOW */
+    .workflow {
+      padding: 40px;
+      text-align: center;
+    }
+
+    .workflow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .workflow-step {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .workflow-step:hover {
+      transform: translateY(-8px);
+      background: rgba(106, 92, 255, 0.2);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>AI Guide built to reach you out</header>
+
+  <div class="main-container">
+    <!-- LEFT -->
+    <div class="left-panel">
+      <div class="ai-card">
+        <h1>🤖 AI Automation Platform</h1>
+        <p>
+          Transform your business with intelligent automation powered by
+          Machine Learning.
+        </p>
+
+        <a href="../contact.html" class="btn btn-primary">Get Early Access</a>
+        <a href="../index.html" class="btn btn-secondary">Explore Products</a>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+      <div class="auth-card">
+        <h2>Login / Signup</h2>
+
+        <input type="email" id="email" placeholder="Enter Email" required />
+        <input type="password" id="password" placeholder="Enter Password" required />
+
+        <button onclick="login()">Login</button>
+        <button onclick="signup()" class="secondary">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW -->
+  <section class="workflow">
+    <h2>⚡ How It Works</h2>
+
+    <div class="workflow-grid">
+      <div class="workflow-step">
+        <h3>01 Data Input</h3>
+        <p>Connect your systems & data sources</p>
+      </div>
+
+      <div class="workflow-step">
+        <h3>02 AI Processing</h3>
+        <p>ML models analyze and automate tasks</p>
+      </div>
+
+      <div class="workflow-step">
+        <h3>03 Automation</h3>
+        <p>Workflows execute automatically</p>
+      </div>
+
+      <div class="workflow-step">
+        <h3>04 Insights</h3>
+        <p>Real-time analytics & improvements</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2026 InfraBuild.in — All rights reserved</footer>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwBd0kuXzfB_FkiDAEFxfLhopl41afhm4",
+      authDomain: "infrabuild-ai.firebaseapp.com",
+      projectId: "infrabuild-ai",
+      storageBucket: "infrabuild-ai.firebasestorage.app",
+      messagingSenderId: "409009047474",
+      appId: "1:409009047474:web:0f0f31c15b79a6270786ab",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // LOGIN
+    window.login = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          alert("Login Successful 🚀");
+          window.location.href = "/dashboard";
+        })
+        .catch((err) => alert(err.message));
+    };
+
+    // SIGNUP
+    window.signup = function () {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => alert("Account Created ✅"))
+        .catch((err) => alert(err.message));
+    };
+  </script>
+</body>
+
+</html>

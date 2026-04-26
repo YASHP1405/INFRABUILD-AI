@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>InfraBuild Cloud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: #0b0f1a;
+        color: white;
+        overflow-x: hidden;
+      }
+      
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at var(--x) var(--y), rgba(0,234,255,0.12), transparent 40%);
+        pointer-events: none;
+        transition: 0.1s;
+      }
+
+      /* NAVBAR */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 8%;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 10;
+      }
+
+      .navbar a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+      }
+
+      .cloud-hero {
+        text-align: center;
+        padding: 80px 20px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .cloud-hero h1 {
+        font-size: 50px;
+        background: linear-gradient(135deg, #00eaff, #6a5cff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .server-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        padding: 40px;
+        flex-wrap: wrap;
+      }
+
+      .server-node {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 234, 255, 0.3);
+        padding: 30px;
+        border-radius: 20px;
+        width: 250px;
+        backdrop-filter: blur(10px);
+        transition: 0.4s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .server-node::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        background: linear-gradient(45deg, #00eaff, transparent, #6a5cff);
+        z-index: -1;
+        opacity: 0;
+        transition: 0.4s;
+      }
+
+      .server-node:hover::before {
+        opacity: 1;
+      }
+
+      .server-node:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(0, 234, 255, 0.2);
+      }
+
+      .status-dot {
+        height: 12px;
+        width: 12px;
+        background-color: #00eaff;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 10px #00eaff;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 234, 255, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 234, 255, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 234, 255, 0); }
+      }
+      
+      .deploy-btn {
+        margin-top: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #6a5cff, #00eaff);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+
+      .deploy-btn:hover {
+        box-shadow: 0 0 20px rgba(106, 92, 255, 0.6);
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div><strong>INFRABUILD CLOUD</strong></div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </header>
+
+    <div class="cloud-hero">
+      <h1>Infinite Scalability</h1>
+      <p style="opacity: 0.8; font-size: 1.2rem;">Deploy and manage AI models natively on our high-speed global infrastructure.</p>
+      <button class="deploy-btn" onclick="alert('Provisioning new instance... Welcome to InfraBuild Cloud!')">Deploy New Instance</button>
+    </div>
+
+    <div class="server-grid">
+      <div class="server-node" id="us-east">
+        <h3><span class="status-dot"></span> US-East (Ohio)</h3>
+        <p style="opacity: 0.7;">Latency: 14ms</p>
+        <p>Status: Online / Healthy</p>
+      </div>
+      <div class="server-node" id="eu-west">
+        <h3><span class="status-dot"></span> EU-West (London)</h3>
+        <p style="opacity: 0.7;">Latency: 28ms</p>
+        <p>Status: Online / Healthy</p>
+      </div>
+      <div class="server-node" id="ap-south">
+        <h3><span class="status-dot"></span> AP-South (Mumbai)</h3>
+        <p style="opacity: 0.7;">Latency: 8ms</p>
+        <p>Status: Online / Healthy</p>
+      </div>
+    </div>
+
+    <script>
+      // Global Mouse Tracker for Gradient Background
+      document.addEventListener("mousemove", e => {
+        document.body.style.setProperty("--x", e.clientX + "px");
+        document.body.style.setProperty("--y", e.clientY + "px");
+      });
+
+      // Interactive Server Nodes
+      document.querySelectorAll('.server-node').forEach(node => {
+        node.addEventListener('click', () => {
+          node.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            node.style.transform = 'scale(1.05)';
+            alert(`Connecting to server region: ${node.id.toUpperCase()}`);
+          }, 150);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Intelligence Analyzer | Inferno AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg: #07090f;
+            --surface: rgba(15, 23, 42, 0.8);
+            --surface2: rgba(30, 41, 59, 0.5);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-hover: rgba(255, 255, 255, 0.14);
+            --text: #f1f5f9;
+            --dim: #64748b;
+            --accent: #22c55e;
+            --accent2: #6366f1;
+            --accent3: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 10% 5%, rgba(34,197,94,0.06) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 90%, rgba(99,102,241,0.06) 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ─── NavBar ─── */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 40px;
+            background: rgba(7, 9, 15, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .logo-icon {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #22c55e, #6366f1);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .nav-back:hover { border-color: var(--border-hover); color: var(--text); }
+        .nav-title { font-size: 0.9rem; color: var(--dim); }
+
+        /* ─── Page Layout ─── */
+        .page { max-width: 1060px; margin: 0 auto; padding: 40px 24px 80px; }
+
+        /* ─── Page Header ─── */
+        .page-header { margin-bottom: 40px; }
+        .page-header .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            background: rgba(34,197,94,0.08);
+            border: 1px solid rgba(34,197,94,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+        }
+        .page-header h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.1; margin-bottom: 10px; }
+        .page-header h1 span {
+            background: linear-gradient(135deg, #22c55e, #6366f1);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .page-header p { color: var(--dim); font-size: 0.97rem; line-height: 1.6; max-width: 560px; }
+
+        /* ─── Input Panel ─── */
+        .input-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(16px);
+            transition: border-color 0.3s;
+        }
+        .input-panel:hover { border-color: var(--border-hover); }
+        .input-panel h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-panel h2 i { color: var(--accent); }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-size: 0.82rem; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; }
+        .input-group input {
+            padding: 13px 16px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .input-group input::placeholder { color: #334155; }
+        .input-group input:focus {
+            border-color: rgba(34,197,94,0.4);
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.08);
+        }
+
+        .analyze-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .analyze-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .analyze-btn:hover::before { opacity: 1; }
+        .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
+        .analyze-btn:active { transform: translateY(0); }
+        .analyze-btn span, .analyze-btn i { position: relative; z-index: 1; }
+        .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ─── Loading Bar ─── */
+        .loading-section { display: none; text-align: center; padding: 40px; }
+        .loading-bar-wrap {
+            width: 100%;
+            max-width: 400px;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            margin: 16px auto;
+            overflow: hidden;
+        }
+        .loading-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #6366f1);
+            border-radius: 2px;
+            animation: loading-anim 2s ease-in-out infinite;
+        }
+        @keyframes loading-anim {
+            0% { width: 0%; transform: translateX(0); }
+            50% { width: 70%; }
+            100% { width: 100%; opacity: 0; }
+        }
+        .loading-text { color: var(--dim); font-size: 0.9rem; margin-top: 8px; }
+
+        /* ─── Results Panel ─── */
+        #results-panel { display: none; }
+
+        /* Repo Stats Banner */
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .stat-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            transition: transform 0.2s, border-color 0.2s;
+            backdrop-filter: blur(12px);
+        }
+        .stat-chip:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+        .stat-chip .val { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+        .stat-chip .lbl { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; }
+
+        /* Questions Section */
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(16px);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .section-header h2 { font-size: 1.1rem; font-weight: 700; }
+        .section-header p { font-size: 0.82rem; color: var(--dim); margin-top: 2px; }
+        .section-icon {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .section-icon i { width: 20px; height: 20px; }
+
+        /* Question Cards */
+        .question-card {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .question-card:hover { border-color: var(--border-hover); }
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px 20px;
+        }
+        .q-num {
+            min-width: 30px; height: 30px;
+            background: linear-gradient(135deg, #22c55e22, #6366f122);
+            border: 1px solid rgba(34,197,94,0.2);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: var(--accent);
+        }
+        .q-text { font-size: 0.97rem; line-height: 1.5; padding-top: 4px; }
+
+        .answer-wrap { padding: 0 20px 18px; }
+        .answer-textarea {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 90px;
+            outline: none;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+        }
+        .answer-textarea::placeholder { color: #334155; }
+        .answer-textarea:focus { border-color: rgba(34,197,94,0.35); }
+
+        .submit-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.97rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.25); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Score Results */
+        #score-panel { display: none; }
+        .score-hero {
+            text-align: center;
+            padding: 36px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(16px);
+        }
+        .score-ring {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative;
+        }
+        .score-ring-inner {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--score-color, #22c55e) var(--score-deg, 0deg), rgba(255,255,255,0.05) 0deg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .score-ring-inner::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            background: var(--surface);
+            border-radius: 50%;
+        }
+        .score-val {
+            position: relative;
+            font-size: 2rem; font-weight: 800;
+        }
+        .score-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+        .score-desc { color: var(--dim); font-size: 0.9rem; }
+
+        .feedback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .feedback-card {
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+        .feedback-card .f-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: var(--dim);
+        }
+        .feedback-card .f-text { font-size: 0.88rem; line-height: 1.6; color: #cbd5e1; }
+
+        /* Pill badge */
+        .lang-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin: 3px;
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.2);
+            color: #a5b4fc;
+        }
+
+        /* Info strip */
+        .info-strip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(34,197,94,0.06);
+            border: 1px solid rgba(34,197,94,0.15);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: #86efac;
+            margin-bottom: 20px;
+        }
+        .info-strip i { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            z-index: 999;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        @media(max-width: 700px) {
+            .navbar { padding: 14px 20px; }
+            .page { padding: 24px 16px 60px; }
+            .input-row { grid-template-columns: 1fr; }
+            .stats-banner { grid-template-columns: repeat(2, 1fr); }
+            .feedback-grid { grid-template-columns: 1fr; }
+            .page-header h1 { font-size: 1.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- NavBar -->
+    <nav class="navbar">
+        <div class="nav-logo">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+            </div>
+            GitHub Intelligence
+        </div>
+        <span class="nav-title">Inferno AI Platform</span>
+        <a href="/dashboard" class="nav-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Dashboard
+        </a>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="page">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="eyebrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7z"/><path d="M22 19H2"/></svg>
+                AI-Powered Repository Analysis
+            </div>
+            <h1>GitHub <span>Intelligence Analyzer</span></h1>
+            <p>Verify your project ownership with cryptographic commit analysis. Answer AI-generated questions about your code to earn an authenticity score.</p>
+        </div>
+
+        <!-- Input Panel -->
+        <div class="input-panel">
+            <h2>
+                <i data-lucide="search-code" style="width:20px;height:20px;color:var(--accent);"></i>
+                Analyze Profile or Repository
+            </h2>
+
+            <div class="info-strip">
+                <i data-lucide="info"></i>
+                Enter any public GitHub profile URL, username, or repository URL to begin the cryptographic ownership verification over your projects.
+            </div>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>GitHub Username or Repo URL</label>
+                    <input id="repo_url" type="text" placeholder="username or https://github.com/username/repo" />
+                </div>
+                <div class="input-group">
+                    <label>Candidate Email</label>
+                    <input id="email" type="email" placeholder="you@example.com" />
+                </div>
+            </div>
+
+            <button class="analyze-btn" onclick="analyzeRepo()" id="analyze-btn">
+                <i data-lucide="zap" style="width:18px;height:18px;"></i>
+                <span>Analyze GitHub Projects</span>
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-section" id="loading">
+            <i data-lucide="github" style="width:40px;height:40px;color:var(--dim);margin-bottom:16px;"></i>
+            <div style="font-size:1rem;font-weight:600;color:var(--text)">Fetching repository data...</div>
+            <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+            <div class="loading-text" id="loading-step">Cloning metadata and commit history</div>
+        </div>
+
+        <!-- Results Panel -->
+        <div id="results-panel">
+            <!-- Stats Banner -->
+            <div class="stats-banner" id="stats-banner"></div>
+
+            <!-- Languages -->
+            <div class="section-card" id="langs-card" style="display:none;">
+                <div class="section-header">
+                    <div class="section-icon" style="background:rgba(99,102,241,0.1);">
+                        <i data-lucide="code-2" style="color:#818cf8;"></i>
+                    </div>
+                    <div>
+                        <h2>Languages Detected</h2>
+                        <p>Primary languages found in this repository</p>
+                    </div>
+                </div>
+                <div id="langs-container"></div>
+            </div>
+
+            <!-- Questions Panel -->
+            <div class="section-card" id="questions-panel" style="display:none;">
+                <div class="section-header">
+                    <div class="section-icon" style="background:rgba(245,158,11,0.1);">
+                        <i data-lucide="message-square-code" style="color:#fbbf24;"></i>
+                    </div>
+                    <div>
+                        <h2>Code Authenticity Questions</h2>
+                        <p>Answer these AI-generated deep-code questions to prove project ownership</p>
+                    </div>
+                </div>
+                <div id="questions-container"></div>
+                <button class="submit-btn" onclick="submitAnswers()" id="submit-btn">
+                    <i data-lucide="send" style="width:16px;height:16px;"></i>
+                    Submit Answers & Get Score
+                </button>
+            </div>
+        </div>
+
+        <!-- Score Panel -->
+        <div id="score-panel">
+            <div class="score-hero">
+                <div class="score-ring">
+                    <div class="score-ring-inner" id="score-ring-el">
+                        <span class="score-val" id="score-display">—</span>
+                    </div>
+                </div>
+                <div class="score-title">GitHub Authenticity Score</div>
+                <div class="score-desc" id="score-desc">Your ownership verification is complete.</div>
+            </div>
+            <div class="feedback-grid" id="feedback-grid"></div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i data-lucide="info" style="width:16px;height:16px;color:#60a5fa;"></i>
+        <span id="toast-msg">Processing...</span>
+    </div>
+
+    <script>
+        // Initialize lucide icons
+        document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+
+        let analysisId = null;
+        let questionsList = [];
+        const loadingSteps = [
+            "Cloning metadata and commit history...",
+            "Extracting code samples and languages...",
+            "Running AI question generation...",
+            "Verifying commit authorship...",
+            "Finalizing analysis..."
+        ];
+
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.className = 'toast show';
+            setTimeout(() => t.className = 'toast', 3500);
+        }
+
+        function setLoadingStep(idx) {
+            document.getElementById('loading-step').textContent = loadingSteps[idx] || loadingSteps[0];
+        }
+
+        async function analyzeRepo() {
+            const repo_url = document.getElementById("repo_url").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            if (!repo_url) { showToast("Please enter a GitHub repository URL", "error"); return; }
+            if (!email) { showToast("Please enter your candidate email", "error"); return; }
+
+            // Show loading
+            document.getElementById("analyze-btn").disabled = true;
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("results-panel").style.display = "none";
+            document.getElementById("score-panel").style.display = "none";
+
+            // Animate loading steps
+            let stepIdx = 0;
+            const stepInterval = setInterval(() => {
+                setLoadingStep(stepIdx++);
+                if (stepIdx >= loadingSteps.length) clearInterval(stepInterval);
+            }, 1000);
+
+            try {
+                const res = await fetch("/github/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ repo_url, candidate_email: email })
+                });
+                const data = await res.json();
+                clearInterval(stepInterval);
+
+                if (data.error) {
+                    showToast("Error: " + data.error, "error");
+                    document.getElementById("loading").style.display = "none";
+                    document.getElementById("analyze-btn").disabled = false;
+                    return;
+                }
+
+                analysisId = data.analysis_id;
+                questionsList = data.questions;
+
+                // Build stats banner
+                const repoMeta = data.repo_data || {};
+                buildStatsBanner(repoMeta, data);
+
+                // Build languages
+                if (data.languages && Object.keys(data.languages).length) {
+                    document.getElementById('langs-card').style.display = 'block';
+                    const lc = document.getElementById('langs-container');
+                    lc.innerHTML = Object.entries(data.languages).map(([k]) =>
+                        `<span class="lang-pill">${k}</span>`
+                    ).join('');
+                }
+
+                // Build questions
+                buildQuestions(data.questions);
+
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("results-panel").style.display = "block";
+                document.getElementById("analyze-btn").disabled = false;
+                lucide.createIcons();
+
+                showToast("Repository analyzed successfully! Answer the questions below.", "success");
+
+                // Smooth scroll
+                document.getElementById("results-panel").scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (e) {
+                clearInterval(stepInterval);
+                showToast("Failed to analyze repository. Please try again.", "error");
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("analyze-btn").disabled = false;
+            }
+        }
+
+        function buildStatsBanner(meta, data) {
+            const stats = [
+                { val: data.total_commits || '—', lbl: 'Total Commits', color: '#22c55e' },
+                { val: data.stars || '0', lbl: 'Stars', color: '#f59e0b' },
+                { val: data.questions?.length || '0', lbl: 'Questions', color: '#6366f1' },
+                { val: data.ownership || 'Pending', lbl: 'Ownership', color: data.ownership === 'verified' ? '#22c55e' : '#f59e0b' }
+            ];
+            const banner = document.getElementById('stats-banner');
+            banner.innerHTML = stats.map(s => `
+                <div class="stat-chip">
+                    <div class="val" style="color:${s.color};">${s.val}</div>
+                    <div class="lbl">${s.lbl}</div>
+                </div>
+            `).join('');
+        }
+
+        function buildQuestions(questions) {
+            const panel = document.getElementById('questions-panel');
+            const container = document.getElementById('questions-container');
+            panel.style.display = 'block';
+            container.innerHTML = questions.map((q, i) => `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="q-num">Q${i+1}</div>
+                        <div class="q-text">${q}</div>
+                    </div>
+                    <div class="answer-wrap">
+                        <textarea class="answer-textarea" id="ans${i}" placeholder="Type your detailed answer here..."></textarea>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitAnswers() {
+            const answers = questionsList.map((_, i) => {
+                const el = document.getElementById(`ans${i}`);
+                return el ? el.value.trim() : '';
+            });
+
+            const unanswered = answers.filter(a => !a).length;
+            if (unanswered > 0) {
+                showToast(`Please answer all ${questionsList.length} questions before submitting.`);
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" style="width:16px;height:16px;animation:spin 1s linear infinite;display:inline-block;"></i>&nbsp; Evaluating with AI...`;
+            lucide.createIcons();
+
+            try {
+                const res = await fetch("/github/evaluate_answers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ analysis_id: analysisId, answers })
+                });
+                const data = await res.json();
+
+                buildScorePanel(data);
+                document.getElementById("results-panel").style.display = "none";
+                document.getElementById("score-panel").style.display = "block";
+                document.getElementById("score-panel").scrollIntoView({ behavior: 'smooth' });
+                lucide.createIcons();
+
+            } catch(e) {
+                showToast("Evaluation failed. Please try again.");
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" style="width:16px;height:16px;"></i> Submit Answers & Get Score`;
+            }
+        }
+
+        function buildScorePanel(data) {
+            const score = data.score || 0;
+            const totalQ = questionsList.length;
+            const pct = Math.round((score / (totalQ * 10)) * 100);
+
+            // Color coding
+            let color = '#22c55e', label = 'Excellent Ownership Proof';
+            if (pct < 40) { color = '#ef4444'; label = 'Low Authenticity Score'; }
+            else if (pct < 65) { color = '#f59e0b'; label = 'Moderate Authenticity'; }
+            else if (pct < 80) { color = '#6366f1'; label = 'Strong Ownership Verified'; }
+
+            const deg = Math.round(pct * 3.6);
+            const ring = document.getElementById('score-ring-el');
+            ring.style.setProperty('--score-color', color);
+            ring.style.background = `conic-gradient(${color} ${deg}deg, rgba(255,255,255,0.05) 0deg)`;
+            document.getElementById('score-display').textContent = pct + '%';
+            document.getElementById('score-display').style.color = color;
+            document.getElementById('score-desc').textContent = label;
+
+            // Feedback cards
+            const grid = document.getElementById('feedback-grid');
+            if (data.feedback && data.feedback.length) {
+                grid.innerHTML = data.feedback.slice(0, 4).map((f, i) => `
+                    <div class="feedback-card">
+                        <div class="f-label">Q${i+1} Feedback</div>
+                        <div class="f-text">${f.feedback || 'No feedback available.'}</div>
+                    </div>
+                `).join('');
+            }
+        }
+    </script>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>

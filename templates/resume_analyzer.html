@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AI Resume Analyzer - InfraBuild Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: #090b14;
+        color: white;
+      }
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 5%;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .navbar .logo {
+        font-weight: 700;
+        font-size: 20px;
+        color: white;
+        text-decoration: none;
+      }
+      .back-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-size: 14px;
+      }
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .main {
+        max-width: 900px;
+        margin: 50px auto;
+        padding: 0 20px;
+      }
+      .header-title {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .header-title h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #6a5cff, #00eaff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .header-title p {
+        color: #aaa;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+      .card h2 {
+        margin-top: 0;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .card h2 i {
+        color: #6a5cff;
+      }
+
+      .profile-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        background: rgba(106, 92, 255, 0.05);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+      .profile-icon {
+        font-size: 40px;
+      }
+      .profile-details h3 {
+        margin: 0 0 5px 0;
+        color: #00eaff;
+      }
+      .profile-details p {
+        margin: 0;
+        color: #ddd;
+        line-height: 1.5;
+        font-size: 15px;
+      }
+
+      .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .skill-tag {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+      .skill-tag.verified {
+        background: rgba(0, 200, 150, 0.15);
+        color: #00c896;
+        border: 1px solid rgba(0, 200, 150, 0.3);
+      }
+      .skill-tag.partial {
+        background: rgba(255, 150, 0, 0.15);
+        color: #ff9600;
+        border: 1px solid rgba(255, 150, 0, 0.3);
+      }
+
+      .interview-cta {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, rgba(106, 92, 255, 0.1), rgba(0, 234, 255, 0.1));
+        border-radius: 15px;
+        border: 1px solid rgba(106, 92, 255, 0.2);
+      }
+      .interview-cta h3 { margin-top: 0; }
+      .interview-cta p { color: #aaa; margin-bottom: 20px; }
+      .btn {
+        background: #6a5cff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.3s;
+      }
+      .btn:hover { background: #5848e5; }
+
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <a href="{{ url_for('dashboard') }}" class="logo"><i class="fa-solid fa-robot"></i> InfraBuild AI</a>
+      <a href="{{ url_for('dashboard') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+    </header>
+
+    <div class="main">
+      <div class="header-title">
+        <h1>Resume Analysis Report</h1>
+        <p>AI-driven extraction of your technical capabilities and profile mapping.</p>
+      </div>
+
+      {% if analysis %}
+      <div class="card">
+        <h2><i class="fa-solid fa-user-check"></i> Career Profile Prediction</h2>
+        <div class="profile-info">
+          <div class="profile-icon">💼</div>
+          <div class="profile-details">
+            <h3>{{ analysis.predicted_role }}</h3>
+            <p>{{ analysis.profile_summary }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fa-solid fa-check-double"></i> Verified Project Skills</h2>
+        <p style="color: #aaa; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">Skills detected within project descriptions or work experience.</p>
+        <div class="skills-container">
+          {% for skill in analysis.verified_skills %}
+            <span class="skill-tag verified">{{ skill | title }}</span>
+          {% else %}
+            <p style="color: #666; font-style: italic;">No verified skills found deeply within projects.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><i class="fa-solid fa-list-check"></i> Secondary & Partial Skills</h2>
+        <p style="color: #aaa; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">Skills only listed in a 'Skills' section (no project context found).</p>
+        <div class="skills-container">
+          {% for skill in analysis.partial_skills %}
+            <span class="skill-tag partial">{{ skill | title }}</span>
+          {% else %}
+            <p style="color: #666; font-style: italic;">No unverified skills listed.</p>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="interview-cta">
+        <h3>Mock AI Auto-Interview</h3>
+        <p>Start a 5-question mock technical screening based on your extracted resume skills.</p>
+        <a href="{{ url_for('start_resume_interview') }}" class="btn"><i class="fa-solid fa-microphone-lines"></i> Start Mock Interview</a>
+      </div>
+      {% else %}
+      <div class="card" style="text-align: center;">
+        <h2><i class="fa-solid fa-triangle-exclamation" style="color: #ff9600;"></i> No Analysis Found</h2>
+        <p style="color: #aaa;">Please upload your resume clearly from the dashboard to generate this report.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn" style="margin-top: 15px;">Return to Dashboard</a>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

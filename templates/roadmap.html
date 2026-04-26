@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Roadmap | InfraBuild AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090b14;
+            --surface: rgba(15,23,42,0.85);
+            --surface2: rgba(30,41,59,0.5);
+            --border: rgba(255,255,255,0.07);
+            --border-h: rgba(255,255,255,0.15);
+            --text: #f1f5f9;
+            --dim: #64748b;
+            --cyan: #00eaff;
+            --indigo: #6a5cff;
+            --green: #00c896;
+            --amber: #fbbf24;
+            --rose: #fb7185;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 5% 10%, rgba(106,92,255,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 95% 90%, rgba(0,234,255,0.07) 0%, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        /* Navbar */
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 40px;
+            background: rgba(9,11,20,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--cyan), var(--indigo));
+            -webkit-background-clip: text; background-clip: text; color: transparent; text-decoration: none; }
+        .logo-box { width: 32px; height: 32px; background: linear-gradient(135deg, var(--indigo), var(--cyan)); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .nav-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--dim); text-decoration: none; font-size: 0.84rem; transition: all 0.2s; }
+        .nav-back:hover { border-color: var(--border-h); color: var(--text); }
+        /* Main */
+        .main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+        /* Hero */
+        .hero { text-align: center; margin-bottom: 48px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--cyan); background: rgba(0,234,255,0.08); border: 1px solid rgba(0,234,255,0.15); padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+        .hero h1 { font-size: 2.6rem; font-weight: 800; background: linear-gradient(135deg, var(--text), var(--indigo)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 12px; line-height: 1.15; }
+        .hero p { color: var(--dim); font-size: 1rem; max-width: 520px; margin: 0 auto 28px; line-height: 1.6; }
+        /* Config Card */
+        .config-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 32px; }
+        .config-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; }
+        .form-group label { display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); margin-bottom: 8px; }
+        .form-select, .form-input {
+            width: 100%; padding: 11px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.92rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .form-select:focus, .form-input:focus { border-color: rgba(0,234,255,0.4); }
+        .form-select option { background: #161b2e; }
+        .gen-btn {
+            display: flex; align-items: center; gap: 8px; padding: 12px 24px;
+            background: linear-gradient(135deg, var(--indigo), var(--cyan));
+            border: none; border-radius: 10px; color: white; font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;
+        }
+        .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(106,92,255,0.35); }
+        .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        /* Loader */
+        .loader { display: none; text-align: center; padding: 60px 0; }
+        .loader-ring { width: 56px; height: 56px; border: 3px solid rgba(0,234,255,0.1); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* Progress Summary */
+        .summary-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 36px; }
+        .summary-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; }
+        .summary-stat .val { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+        .summary-stat .lbl { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; }
+        /* Timeline */
+        .timeline { position: relative; }
+        .timeline::before { content: ''; position: absolute; left: 28px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--indigo), var(--cyan), transparent); }
+        .week-card {
+            position: relative; margin-bottom: 24px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 18px; padding: 24px 24px 24px 68px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .week-card:hover { border-color: var(--border-h); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .week-card.completed { border-color: rgba(0,200,150,0.25); background: rgba(0,200,150,0.03); }
+        .week-dot {
+            position: absolute; left: 12px; top: 24px;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--indigo), var(--cyan));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.78rem; color: white;
+            z-index: 1; flex-shrink: 0;
+        }
+        .week-dot.done { background: linear-gradient(135deg, var(--green), #00a67e); }
+        .week-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+        .week-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+        .week-meta { display: flex; align-items: center; gap: 10px; }
+        .week-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.73rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+        .badge-hours { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: var(--amber); }
+        .badge-xp { background: rgba(106,92,255,0.1); border: 1px solid rgba(106,92,255,0.2); color: var(--indigo); }
+        /* Tasks */
+        .tasks-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .task-item {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s;
+        }
+        .task-item:hover { border-color: var(--border-h); background: rgba(255,255,255,0.03); }
+        .task-item.done { background: rgba(0,200,150,0.06); border-color: rgba(0,200,150,0.2); }
+        .task-check { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border-h); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 1px; }
+        .task-item.done .task-check { background: var(--green); border-color: var(--green); }
+        .task-item.done .task-check::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
+        .task-text { font-size: 0.9rem; line-height: 1.4; color: var(--text); }
+        .task-item.done .task-text { color: var(--dim); text-decoration: line-through; }
+        /* Milestone */
+        .milestone { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(106,92,255,0.06); border: 1px solid rgba(106,92,255,0.2); border-radius: 10px; font-size: 0.88rem; }
+        .milestone i { color: var(--indigo); margin-top: 2px; flex-shrink: 0; }
+        /* Resources */
+        .resources { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .resource-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.74rem; padding: 3px 10px; background: rgba(0,234,255,0.06); border: 1px solid rgba(0,234,255,0.15); border-radius: 8px; color: var(--cyan); }
+        /* Week progress bar */
+        .week-progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; margin-top: 14px; overflow: hidden; }
+        .week-progress-fill { height: 100%; background: linear-gradient(90deg, var(--indigo), var(--cyan)); border-radius: 2px; transition: width 0.5s ease; }
+        /* Empty */
+        .empty-state { text-align: center; padding: 60px 0; }
+        .empty-state i { font-size: 3rem; color: var(--indigo); margin-bottom: 16px; display: block; }
+        @media(max-width: 720px) { .config-row { grid-template-columns: 1fr; } .summary-bar { grid-template-columns: repeat(2,1fr); } .week-card { padding-left: 56px; } }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/dashboard" class="logo">
+        <div class="logo-box"><i class="fa-solid fa-bolt" style="color:white;font-size:14px;"></i></div>
+        InfraBuild AI
+    </a>
+    <a href="/dashboard" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+</nav>
+
+<div class="main">
+    <div class="hero">
+        <div class="eyebrow"><i class="fa-solid fa-map-location-dot"></i> Native AI Generator</div>
+        <h1>Your Personal Career Roadmap</h1>
+        <p>AI-generated, week-by-week action plan tailored to your target role and skill gaps. Check off tasks to earn XP.</p>
+    </div>
+
+    <div class="config-card">
+        <div class="config-row">
+            <div class="form-group">
+                <label>Target Role</label>
+                <input type="text" class="form-input" id="inp-role" value="{{ role }}" placeholder="e.g. Full Stack Developer">
+            </div>
+            <div class="form-group">
+                <label>Timeframe</label>
+                <select class="form-select" id="inp-weeks">
+                    <option value="4">4 Weeks (Sprint)</option>
+                    <option value="8" selected>8 Weeks (Recommended)</option>
+                    <option value="12">12 Weeks (Deep Dive)</option>
+                    <option value="16">16 Weeks (Mastery)</option>
+                </select>
+            </div>
+            <button class="gen-btn" id="gen-btn" onclick="generateRoadmap()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Plan
+            </button>
+        </div>
+    </div>
+
+    <div class="loader" id="loader">
+        <div class="loader-ring"></div>
+        <div style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:6px;">Building your personalized roadmap...</div>
+        <div style="font-size:0.84rem;color:var(--dim);">Groq AI is mapping out your week-by-week plan</div>
+    </div>
+
+    <div id="roadmap-output" style="display:none;">
+        <div class="summary-bar" id="summary-bar"></div>
+        <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+        <i class="fa-solid fa-route"></i>
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;">No roadmap generated yet</div>
+        <div style="color:var(--dim);font-size:0.9rem;">Click "Generate Plan" above to build your personalized learning roadmap.</div>
+    </div>
+</div>
+
+<script>
+    let currentRole = '{{ role }}';
+    let roadmapData = null;
+    let taskState = {};
+    let userEmail = '';
+
+    // Try to get email from Firebase
+    try {
+        import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({ initializeApp }) => {
+            import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged }) => {
+                const app = initializeApp({ apiKey: "AIzaSyCwBd0kuXzfB_FkiDAEFxfLhopl41afhm4", authDomain: "infrabuild-ai.firebaseapp.com", projectId: "infrabuild-ai", storageBucket: "infrabuild-ai.firebasestorage.app", messagingSenderId: "409009047474", appId: "1:409009047474:web:0f0f31c15b79a6270786ab" });
+                const auth = getAuth(app);
+                onAuthStateChanged(auth, (user) => { if (user) userEmail = user.email; });
+            });
+        });
+    } catch(e) {}
+
+    async function generateRoadmap() {
+        const role = document.getElementById('inp-role').value.trim() || '{{ role }}';
+        const weeks = document.getElementById('inp-weeks').value;
+        currentRole = role;
+        taskState = {};
+
+        document.getElementById('gen-btn').disabled = true;
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('roadmap-output').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'none';
+
+        const missingSkills = {{ (analysis.partial_skills or []) | tojson }};
+
+        try {
+            const res = await fetch('/api/generate_roadmap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role, missing_skills: missingSkills, timeframe: weeks })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            roadmapData = data;
+            renderRoadmap(data);
+        } catch(e) {
+            alert('Failed to generate roadmap. Please try again.');
+        } finally {
+            document.getElementById('gen-btn').disabled = false;
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    function renderRoadmap(data) {
+        const weeks = data.weeks || [];
+        const total = weeks.reduce((a,w) => a + (w.tasks || []).length, 0);
+        const done = Object.values(taskState).filter(Boolean).length;
+
+        document.getElementById('summary-bar').innerHTML = `
+            <div class="summary-stat"><div class="val" style="color:var(--cyan);">${weeks.length}</div><div class="lbl">Weeks</div></div>
+            <div class="summary-stat"><div class="val" style="color:var(--indigo);">${total}</div><div class="lbl">Total Tasks</div></div>
+            <div class="summary-stat"><div class="val" style="color:var(--green);">${done}</div><div class="lbl">Completed</div></div>
+            <div class="summary-stat"><div class="val" style="color:var(--amber);">${total * 10}</div><div class="lbl">Total XP</div></div>
+        `;
+
+        const container = document.getElementById('timeline');
+        container.innerHTML = weeks.map((w, wi) => {
+            const tasks = w.tasks || [];
+            const doneTasks = tasks.filter((_, ti) => taskState[`${wi}-${ti}`]).length;
+            const pct = tasks.length ? Math.round(doneTasks / tasks.length * 100) : 0;
+            const allDone = pct === 100;
+
+            return `
+            <div class="week-card ${allDone ? 'completed' : ''}" id="week-${wi}">
+                <div class="week-dot ${allDone ? 'done' : ''}">${w.week}</div>
+                <div class="week-header">
+                    <div>
+                        <div class="week-title">${w.theme}</div>
+                        <div class="week-meta">
+                            <span class="week-badge badge-hours"><i class="fa-regular fa-clock"></i> ${w.daily_hours}h/day</span>
+                            <span class="week-badge badge-xp"><i class="fa-solid fa-star"></i> ${tasks.length * 10} XP</span>
+                        </div>
+                    </div>
+                    <div style="font-size:1.1rem;font-weight:800;color:${pct===100?'var(--green)':'var(--dim)'};">${pct}%</div>
+                </div>
+                <div class="tasks-list">
+                    ${tasks.map((t, ti) => `
+                    <div class="task-item ${taskState[`${wi}-${ti}`] ? 'done' : ''}" onclick="toggleTask(${wi},${ti},${w.week})">
+                        <div class="task-check"></div>
+                        <div class="task-text">${t}</div>
+                    </div>`).join('')}
+                </div>
+                ${w.milestone ? `<div class="milestone"><i class="fa-solid fa-flag" style="font-size:13px;"></i><div><strong>Milestone:</strong> ${w.milestone}</div></div>` : ''}
+                ${(w.resources||[]).length > 0 ? `<div class="resources">${w.resources.map(r=>`<span class="resource-tag"><i class="fa-solid fa-book-open"></i>${r}</span>`).join('')}</div>` : ''}
+                <div class="week-progress-bar"><div class="week-progress-fill" style="width:${pct}%"></div></div>
+            </div>`;
+        }).join('');
+
+        document.getElementById('roadmap-output').style.display = 'block';
+    }
+
+    async function toggleTask(weekIdx, taskIdx, weekNum) {
+        const key = `${weekIdx}-${taskIdx}`;
+        taskState[key] = !taskState[key];
+
+        // Award XP
+        if (taskState[key] && userEmail) {
+            fetch('/api/award_xp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, activity: 'roadmap_task', score: 0 })
+            });
+        }
+
+        if (roadmapData) renderRoadmap(roadmapData);
+    }
+</script>
+</body>
+</html>

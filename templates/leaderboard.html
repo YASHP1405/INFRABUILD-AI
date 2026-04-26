@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Leaderboard | InfraBuild AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090b14;
+            --surface: rgba(15,23,42,0.9);
+            --surface2: rgba(30,41,59,0.5);
+            --border: rgba(255,255,255,0.07);
+            --border-h: rgba(255,255,255,0.13);
+            --text: #f1f5f9;
+            --dim: #64748b;
+            --cyan: #00eaff;
+            --indigo: #6a5cff;
+            --green: #00c896;
+            --amber: #fbbf24;
+            --rose: #fb7185;
+            --gold: #f59e0b;
+            --silver: #94a3b8;
+            --bronze: #b45309;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh;
+            background-image: radial-gradient(ellipse at 50% 0%, rgba(106,92,255,0.1) 0%, transparent 60%); }
+        .navbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; background: rgba(9,11,20,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; background: linear-gradient(135deg, var(--cyan), var(--indigo)); -webkit-background-clip: text; background-clip: text; color: transparent; text-decoration: none; }
+        .logo-box { width: 32px; height: 32px; background: linear-gradient(135deg, var(--indigo), var(--cyan)); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .nav-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--dim); text-decoration: none; font-size: 0.84rem; transition: all 0.2s; }
+        .nav-back:hover { border-color: var(--border-h); color: var(--text); }
+        .main { max-width: 960px; margin: 0 auto; padding: 44px 24px 80px; }
+        /* Hero */
+        .hero { text-align: center; margin-bottom: 44px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--amber); background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
+        .hero p { color: var(--dim); font-size: 0.97rem; max-width: 480px; margin: 0 auto 24px; line-height: 1.6; }
+        /* Filter */
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; }
+        .filter-bar form { display: flex; gap: 10px; flex: 1; }
+        .filter-input { flex: 1; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+        .filter-input:focus { border-color: rgba(0,234,255,0.3); }
+        .filter-btn { padding: 10px 20px; background: linear-gradient(135deg, var(--indigo), var(--cyan)); border: none; border-radius: 10px; color: white; font-family: 'Outfit',sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .filter-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(106,92,255,0.3); }
+        /* Podium */
+        .podium { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin-bottom: 40px; min-height: 180px; }
+        .podium-slot { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 180px; }
+        .podium-avatar { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; border: 3px solid; }
+        .podium-name { font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; text-align: center; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .podium-xp { font-size: 0.78rem; color: var(--dim); margin-bottom: 8px; }
+        .podium-block { width: 100%; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; padding: 14px 0; }
+        .podium-1 .podium-avatar { border-color: var(--gold); background: rgba(245,158,11,0.15); color: var(--gold); }
+        .podium-1 .podium-block { background: linear-gradient(180deg, rgba(245,158,11,0.2), rgba(245,158,11,0.1)); border: 1px solid rgba(245,158,11,0.3); height: 100px; }
+        .podium-2 .podium-avatar { border-color: var(--silver); background: rgba(148,163,184,0.15); color: var(--silver); }
+        .podium-2 .podium-block { background: linear-gradient(180deg, rgba(148,163,184,0.15), rgba(148,163,184,0.08)); border: 1px solid rgba(148,163,184,0.25); height: 72px; }
+        .podium-3 .podium-avatar { border-color: #b45309; background: rgba(180,83,9,0.15); color: #d97706; }
+        .podium-3 .podium-block { background: linear-gradient(180deg, rgba(180,83,9,0.15), rgba(180,83,9,0.08)); border: 1px solid rgba(180,83,9,0.25); height: 56px; }
+        /* Table */
+        .lb-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+        .lb-header { display: grid; grid-template-columns: 60px 1fr 100px 80px 80px 90px; gap: 0; padding: 14px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--dim); }
+        .lb-row { display: grid; grid-template-columns: 60px 1fr 100px 80px 80px 90px; gap: 0; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; transition: background 0.2s; }
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row:hover { background: rgba(255,255,255,0.02); }
+        .lb-row.highlight { background: rgba(106,92,255,0.06); border-left: 3px solid var(--indigo); }
+        .rank-badge { font-weight: 800; font-size: 0.95rem; text-align: center; }
+        .rank-1 { color: var(--gold); }
+        .rank-2 { color: var(--silver); }
+        .rank-3 { color: #d97706; }
+        .rank-other { color: var(--dim); }
+        .user-cell { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--indigo), var(--cyan)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
+        .user-name { font-weight: 600; font-size: 0.9rem; }
+        .user-role { font-size: 0.73rem; color: var(--dim); margin-top: 1px; }
+        .xp-val { font-weight: 800; font-size: 0.95rem; color: var(--indigo); }
+        .level-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; background: rgba(106,92,255,0.1); border: 1px solid rgba(106,92,255,0.2); font-size: 0.75rem; font-weight: 700; color: var(--indigo); }
+        .streak-val { display: flex; align-items: center; gap: 4px; font-size: 0.88rem; font-weight: 700; color: var(--amber); }
+        .score-val { font-weight: 700; font-size: 0.88rem; }
+        /* Empty */
+        .empty-lb { text-align: center; padding: 60px; color: var(--dim); }
+        .empty-lb i { font-size: 2.5rem; margin-bottom: 16px; display: block; color: var(--indigo); }
+        /* Stats cards */
+        .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+        .stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; text-align: center; }
+        .stats-card .sv { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+        .stats-card .sl { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; }
+        @media(max-width: 720px) { .lb-header, .lb-row { grid-template-columns: 40px 1fr 70px 60px; } .lb-header span:nth-child(4), .lb-header span:nth-child(6), .lb-row > *:nth-child(4), .lb-row > *:nth-child(6) { display: none; } .stats-row { grid-template-columns: repeat(2,1fr); } }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/dashboard" class="logo">
+        <div class="logo-box"><i class="fa-solid fa-bolt" style="color:white;font-size:14px;"></i></div>
+        InfraBuild AI
+    </a>
+    <a href="/dashboard" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+</nav>
+
+<div class="main">
+    <div class="hero">
+        <div class="eyebrow"><i class="fa-solid fa-trophy"></i> Global Rankings</div>
+        <h1>🏆 Leaderboard</h1>
+        <p>See where you rank among all candidates. Earn XP by completing interviews, roadmap tasks, and video sessions.</p>
+    </div>
+
+    <div class="stats-row">
+        <div class="stats-card">
+            <div class="sv" style="color:var(--indigo);">{{ leaderboard|length }}</div>
+            <div class="sl">Active Candidates</div>
+        </div>
+        <div class="stats-card">
+            <div class="sv" style="color:var(--amber);">{{ leaderboard[0].xp if leaderboard else 0 }}</div>
+            <div class="sl">Top XP Score</div>
+        </div>
+        <div class="stats-card">
+            <div class="sv" style="color:var(--green);">{{ leaderboard[0].streak if leaderboard else 0 }}🔥</div>
+            <div class="sl">Top Streak</div>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <form method="GET" action="/leaderboard">
+            <input type="text" class="filter-input" name="role" value="{{ role_filter }}" placeholder="Filter by role (e.g. Data Scientist, Full Stack)...">
+            <button type="submit" class="filter-btn"><i class="fa-solid fa-filter"></i> Filter</button>
+            {% if role_filter %}<a href="/leaderboard" style="display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--dim);text-decoration:none;font-size:0.85rem;">✕ Clear</a>{% endif %}
+        </form>
+    </div>
+
+    {% if leaderboard and leaderboard|length >= 3 %}
+    <div class="podium">
+        <!-- 2nd Place -->
+        <div class="podium-slot podium-2">
+            <div class="podium-avatar">{{ leaderboard[1].username[0].upper() if leaderboard[1].username else '?' }}</div>
+            <div class="podium-name">{{ leaderboard[1].username or 'User' }}</div>
+            <div class="podium-xp">{{ leaderboard[1].xp }} XP</div>
+            <div class="podium-block">🥈</div>
+        </div>
+        <!-- 1st Place -->
+        <div class="podium-slot podium-1">
+            <div class="podium-avatar">{{ leaderboard[0].username[0].upper() if leaderboard[0].username else '?' }}</div>
+            <div class="podium-name">{{ leaderboard[0].username or 'User' }}</div>
+            <div class="podium-xp">{{ leaderboard[0].xp }} XP</div>
+            <div class="podium-block">🥇</div>
+        </div>
+        <!-- 3rd Place -->
+        <div class="podium-slot podium-3">
+            <div class="podium-avatar">{{ leaderboard[2].username[0].upper() if leaderboard[2].username else '?' }}</div>
+            <div class="podium-name">{{ leaderboard[2].username or 'User' }}</div>
+            <div class="podium-xp">{{ leaderboard[2].xp }} XP</div>
+            <div class="podium-block">🥉</div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if leaderboard %}
+    <div class="lb-card">
+        <div class="lb-header">
+            <span>Rank</span>
+            <span>Candidate</span>
+            <span>XP</span>
+            <span>Level</span>
+            <span>Streak</span>
+            <span>Best Score</span>
+        </div>
+        {% for user in leaderboard %}
+        <div class="lb-row {% if loop.index <= 3 %}highlight{% endif %}">
+            <div class="rank-badge rank-{% if loop.index <= 3 %}{{ loop.index }}{% else %}other{% endif %}">
+                {% if loop.index == 1 %}🥇
+                {% elif loop.index == 2 %}🥈
+                {% elif loop.index == 3 %}🥉
+                {% else %}#{{ loop.index }}{% endif %}
+            </div>
+            <div class="user-cell">
+                <div class="user-avatar">{{ (user.username or 'U')[0].upper() }}</div>
+                <div>
+                    <div class="user-name">{{ user.username or 'Anonymous' }}</div>
+                    <div class="user-role">{{ user.target_role or 'Software Engineer' }}</div>
+                </div>
+            </div>
+            <div class="xp-val">{{ user.xp or 0 }} <span style="font-size:0.72rem;color:var(--dim);font-weight:400;">XP</span></div>
+            <div><span class="level-pill">Lv. {{ user.level or 1 }}</span></div>
+            <div class="streak-val"><span>{{ user.streak or 0 }}🔥</span></div>
+            <div class="score-val" style="color:{% if user.best_score >= 80 %}var(--green){% elif user.best_score >= 60 %}var(--amber){% else %}var(--rose){% endif %};">
+                {{ user.best_score|int if user.best_score else 0 }}%
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="lb-card">
+        <div class="empty-lb">
+            <i class="fa-solid fa-ranking-star"></i>
+            <div style="font-size:1.1rem;font-weight:600;margin-bottom:8px;">No rankings yet</div>
+            <div style="color:var(--dim);font-size:0.9rem;margin-bottom:20px;">Complete interviews and track your roadmap to appear on the leaderboard.</div>
+            <a href="/dashboard" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,var(--indigo),var(--cyan));border-radius:10px;color:white;text-decoration:none;font-weight:600;">
+                <i class="fa-solid fa-rocket"></i> Start Earning XP
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="text-align:center;margin-top:24px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;">
+        <div style="font-size:0.82rem;color:var(--dim);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;">How to Earn XP</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+            <span style="font-size:0.8rem;padding:4px 12px;background:rgba(106,92,255,0.1);border:1px solid rgba(106,92,255,0.2);border-radius:20px;color:var(--indigo);">🏢 Company Sim: 50 XP</span>
+            <span style="font-size:0.8rem;padding:4px 12px;background:rgba(0,234,255,0.08);border:1px solid rgba(0,234,255,0.15);border-radius:20px;color:var(--cyan);">💻 Coding Round: 40 XP</span>
+            <span style="font-size:0.8rem;padding:4px 12px;background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.2);border-radius:20px;color:var(--rose);">🎥 Video Interview: 45 XP</span>
+            <span style="font-size:0.8rem;padding:4px 12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:20px;color:var(--green);">🗺️ Roadmap Task: 10 XP</span>
+            <span style="font-size:0.8rem;padding:4px 12px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:20px;color:var(--amber);">+50% Bonus for 80%+ scores!</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inferno Verified Portfolio | {{ candidate_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0f1e;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f1f5f9;
+            --text-dim: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(ellipse at 15% 10%, rgba(59,130,246,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 80%, rgba(139,92,246,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, #0d1526 0%, #0a0f1e 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* ─── Top Banner ─── */
+        .top-bar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .top-bar a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+        .top-bar a:hover { color: var(--text-main); }
+        .platform-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .platform-badge span {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        /* ─── Container ─── */
+        .container { max-width: 960px; margin: 0 auto; padding: 50px 24px 80px; }
+
+        /* ─── Hero Section ─── */
+        .hero {
+            text-align: center;
+            margin-bottom: 56px;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -40px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .avatar-ring {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .avatar-ring::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6);
+            z-index: -1;
+            animation: spin-ring 4s linear infinite;
+        }
+        @keyframes spin-ring {
+            to { transform: rotate(360deg); }
+        }
+        .avatar-initials {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f0abfc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+        .hero .subtitle {
+            color: var(--text-dim);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 18px;
+            background: rgba(16,185,129,0.1);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.25);
+            border-radius: 40px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            backdrop-filter: blur(8px);
+        }
+        .verified-badge i { width: 14px; height: 14px; }
+
+        .hero-summary {
+            margin: 20px auto 0;
+            max-width: 600px;
+            font-size: 0.97rem;
+            line-height: 1.7;
+            color: #94a3b8;
+        }
+
+        /* ─── Metric Grid ─── */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 28px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 18px 18px 0 0;
+        }
+        .metric-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .metric-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #c084fc); }
+        .metric-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+
+        .metric-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+
+        .stat-val {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .stat-sub {
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        /* ─── Section Titles ─── */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 44px 0 18px;
+        }
+        .section-title .icon-wrap {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .section-title i { width: 18px; height: 18px; }
+
+        /* ─── Cards ─── */
+        .info-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+        .info-card:hover { border-color: rgba(255,255,255,0.14); }
+
+        /* ─── GitHub Section ─── */
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 20px;
+        }
+        .repo-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 4px; }
+        .repo-link { color: var(--accent-blue); font-size: 0.82rem; text-decoration: none; }
+        .repo-link:hover { text-decoration: underline; }
+
+        .ownership-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 20px;
+        }
+        .ownership-verified { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+        .ownership-partial   { background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+        .ownership-failed    { background: rgba(239,68,68,0.1);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-box .val { font-size: 1.4rem; font-weight: 700; color: #fff; }
+        .stat-box .lbl { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+
+        /* ─── Skills/Pills ─── */
+        .pill {
+            display: inline-block;
+            padding: 5px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 0.82rem;
+            margin: 4px;
+            color: #cbd5e1;
+        }
+        .pill-label {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* ─── Code Review ─── */
+        .feedback-quote {
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid var(--accent-purple);
+            padding: 16px 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 16px;
+        }
+        .feedback-quote .label {
+            font-size: 0.75rem;
+            color: #a78bfa;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .feedback-quote p { font-size: 0.95rem; line-height: 1.6; color: #cbd5e1; }
+
+        .ai-eval-box {
+            background: rgba(16,185,129,0.07);
+            border: 1px solid rgba(16,185,129,0.2);
+            padding: 16px 20px;
+            border-radius: 10px;
+        }
+        .ai-eval-box .label {
+            font-size: 0.75rem;
+            color: #34d399;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .ai-eval-box p { font-size: 0.95rem; line-height: 1.6; color: #d1fae5; }
+
+        /* ─── Empty State ─── */
+        .empty-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 60px 24px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .empty-icon { margin-bottom: 16px; }
+
+        /* ─── Footer ─── */
+        .footer {
+            text-align: center;
+            margin-top: 70px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.15);
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+        }
+
+        @media(max-width: 700px) {
+            .metric-grid { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .hero h1 { font-size: 2.2rem; }
+            .repo-header { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top navigation bar -->
+    <div class="top-bar">
+        <a href="/dashboard">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            Return to Dashboard
+        </a>
+        <div class="platform-badge">
+            <i data-lucide="zap" style="width:14px;height:14px;color:#6366f1;"></i>
+            <span>Inferno AI</span> Verified Profile
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="avatar-ring">
+                <span class="avatar-initials">{{ candidate_name[0] if candidate_name else 'U' }}</span>
+            </div>
+            <h1>{{ candidate_name }}</h1>
+            <p class="subtitle">{{ email }} &nbsp;·&nbsp; {{ role }}</p>
+            <div class="verified-badge">
+                <i data-lucide="shield-check"></i>
+                Inferno Verified AI Profile
+            </div>
+            <p class="hero-summary">{{ summary }}</p>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="metric-grid">
+            <div class="metric-card blue">
+                <div class="stat-val" style="color:#60a5fa;">{{ overall_score }}</div>
+                <div class="stat-label">Overall Match</div>
+                <div class="stat-sub">AI-computed composite</div>
+            </div>
+            <div class="metric-card purple">
+                <div class="stat-val" style="color:#c084fc;">{{ cgpa }}<span style="font-size:1.2rem;">/10</span></div>
+                <div class="stat-label">Verified CGPA</div>
+                <div class="stat-sub">Academic credential</div>
+            </div>
+            <div class="metric-card green">
+                {% if review %}
+                <div class="stat-val" style="color:#34d399;">{{ review.score }}<span style="font-size:1.2rem;">%</span></div>
+                {% else %}
+                <div class="stat-val" style="color:#475569;">N/A</div>
+                {% endif %}
+                <div class="stat-label">Code Review Score</div>
+                <div class="stat-sub">Senior simulation</div>
+            </div>
+        </div>
+
+        <!-- GitHub Section -->
+        {% if github %}
+        <div class="section-title">
+            <div class="icon-wrap" style="background:rgba(148,163,184,0.1);">
+                <i data-lucide="github" style="color:#94a3b8;"></i>
+            </div>
+            GitHub Cryptographic Verification
+        </div>
+        <div class="info-card">
+            <div class="repo-header">
+                <div>
+                    <div class="repo-name">{{ github.owner }}/{{ github.repo_name }}</div>
+                    <a href="{{ github.repo_url }}" target="_blank" class="repo-link">View Repository →</a>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;font-weight:600;margin-bottom:6px;">Ownership Status</div>
+                    {% if github.ownership == 'verified' %}
+                        <span class="ownership-badge ownership-verified">✅ Verified Match</span>
+                    {% elif github.ownership == 'partial' %}
+                        <span class="ownership-badge ownership-partial">⚠️ Partial Overlap</span>
+                    {% else %}
+                        <span class="ownership-badge ownership-failed">❌ Non-Matching</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="val">{{ github.total_commits }}</div>
+                    <div class="lbl">Total Commits</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val">{{ github.stars }}</div>
+                    <div class="lbl">Stars</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val">{{ github.commit_quality }}</div>
+                    <div class="lbl">Commit Quality</div>
+                </div>
+            </div>
+
+            <span class="pill-label">Languages Detected</span>
+            {% for key, val in github.languages.items() %}
+                <span class="pill">{{ key }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Mock Code Review Section -->
+        {% if review %}
+        <div class="section-title">
+            <div class="icon-wrap" style="background:rgba(139,92,246,0.12);">
+                <i data-lucide="shield-alert" style="color:#a78bfa;"></i>
+            </div>
+            Senior Engineering Simulation
+        </div>
+        <div class="info-card">
+            <h3 style="margin:0 0 8px;font-size:1.05rem;">Mock Code Review Results</h3>
+            <p style="color:var(--text-dim);font-size:0.88rem;margin-bottom:24px;line-height:1.6;">
+                Candidate was presented with flawed code containing critical security and performance vulnerabilities. Below is their evaluation.
+            </p>
+
+            <div class="feedback-quote">
+                <div class="label">Candidate Feedback Log</div>
+                <p>"{{ review.candidate_feedback }}"</p>
+            </div>
+
+            <div class="ai-eval-box">
+                <div class="label">AI Senior Evaluation</div>
+                <p>{{ review.ai_evaluation }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Empty State -->
+        {% if not github and not review %}
+        <div class="empty-card">
+            <div class="empty-icon">
+                <i data-lucide="ghost" style="width:56px;height:56px;color:rgba(255,255,255,0.08);"></i>
+            </div>
+            <h3 style="color:#fff;margin-bottom:10px;">Profile Building In Progress</h3>
+            <p style="color:var(--text-dim);max-width:420px;margin:0 auto;font-size:0.9rem;line-height:1.6;">
+                This candidate has not yet completed the GitHub cryptographic ownership verification or the Senior Mock Review simulation.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="footer">
+            VERIFIED BY INFERNO AI &nbsp;✦&nbsp; 2026
+        </div>
+    </div>
+
+    <script>
+        // Initialize all lucide icons after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

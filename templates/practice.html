@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Practice Arena | AI Coach</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --accent2: #7c3aed;
+            --success: #3fb950;
+            --warning: #d29922;
+            --danger: #f85149;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --coach-bg: #1a2332;
+            --user-bg: #1f2d1f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 54px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .difficulty-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .difficulty-easy {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .difficulty-medium {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+        }
+
+        .difficulty-hard {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        .integrity-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .integrity-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .integrity-badge.violated .integrity-dot {
+            background: var(--danger);
+            animation: none;
+        }
+
+        .integrity-badge.violated {
+            color: var(--danger);
+            border-color: rgba(248, 81, 73, 0.4);
+        }
+
+        .ai-voice-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 4px 10px;
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+
+        .ai-voice-badge:hover {
+            background: rgba(88, 166, 255, 0.08);
+        }
+
+        .ai-voice-badge.muted {
+            color: var(--muted);
+            border-color: var(--border);
+        }
+
+        .ai-speaking-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse-dot 0.8s ease-in-out infinite;
+        }
+
+        .ai-voice-badge.muted .ai-speaking-dot {
+            animation: none;
+            background: var(--muted);
+        }
+
+        .btn {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #0d1117;
+        }
+
+        .btn-accent:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-danger {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        .btn-success {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+
+        .btn-purple {
+            background: rgba(124, 58, 237, 0.2);
+            color: #a78bfa;
+            border: 1px solid rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-purple:hover {
+            background: rgba(124, 58, 237, 0.35);
+        }
+
+        /* ===== MAIN LAYOUT - 3 COLUMNS ===== */
+        .arena {
+            display: grid;
+            grid-template-columns: 380px 1fr 340px;
+            flex: 1;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        /* ===== COLUMN 1: PROBLEM ===== */
+        .problem-panel {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .problem-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .problem-statement {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #cdd9e5;
+        }
+
+        .example-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .example-box .ex-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .example-box .ex-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            color: #e6edf3;
+            margin-bottom: 4px;
+        }
+
+        .example-box .ex-line span {
+            color: var(--muted);
+        }
+
+        .constraints-box {
+            background: rgba(88, 166, 255, 0.05);
+            border: 1px solid rgba(88, 166, 255, 0.15);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #cdd9e5;
+        }
+
+        .difficulty-select {
+            display: flex;
+            gap: 8px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            transition: 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .diff-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .diff-btn.active-easy {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+            border-color: rgba(63, 185, 80, 0.4);
+        }
+
+        .diff-btn.active-medium {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+            border-color: rgba(210, 153, 34, 0.4);
+        }
+
+        .diff-btn.active-hard {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+            border-color: rgba(248, 81, 73, 0.4);
+        }
+
+        /* ===== COLUMN 2: CODE EDITOR ===== */
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid var(--border);
+        }
+
+        .editor-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .lang-tag {
+            font-size: 0.78rem;
+            color: var(--muted);
+            background: var(--bg);
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        #codeEditor {
+            flex: 1;
+            background: var(--bg);
+            color: #e6edf3;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 4;
+            overflow-y: auto;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .editor-footer {
+            padding: 10px 16px;
+            background: var(--surface2);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        /* Approach Analysis Panel */
+        #approachPanel {
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            padding: 16px;
+            display: none;
+            flex-shrink: 0;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .approach-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .approach-stat {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .approach-stat .stat-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .approach-stat .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .quality-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quality-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            min-width: 80px;
+        }
+
+        .quality-pills {
+            display: flex;
+            gap: 6px;
+        }
+
+        .quality-pill {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pill-good {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(63, 185, 80, 0.4);
+        }
+
+        .pill-acceptable {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(210, 153, 34, 0.4);
+        }
+
+        .pill-improve {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+        }
+
+        .hint-box {
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #c4b5fd;
+        }
+
+        /* ===== COLUMN 3: AI COACH CHAT ===== */
+        .coach-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .coach-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .coach-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .coach-subtitle {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg {
+            max-width: 90%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            animation: msgIn 0.25s ease;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-coach {
+            background: var(--coach-bg);
+            border: 1px solid rgba(88, 166, 255, 0.15);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-user {
+            background: var(--user-bg);
+            border: 1px solid rgba(63, 185, 80, 0.15);
+            align-self: flex-end;
+            text-align: right;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .msg-coach .msg-label {
+            color: var(--accent);
+        }
+
+        .msg-user .msg-label {
+            color: var(--success);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: typing-bounce 1.2s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .coach-input-area {
+            padding: 14px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .text-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        #chatTextInput {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        #chatTextInput:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        #chatTextInput::placeholder {
+            color: var(--muted);
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mic-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid rgba(124, 58, 237, 0.4);
+            background: rgba(124, 58, 237, 0.1);
+            color: #a78bfa;
+            transition: 0.2s;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .mic-btn.recording {
+            background: rgba(248, 81, 73, 0.15);
+            border-color: rgba(248, 81, 73, 0.5);
+            color: var(--danger);
+            animation: recording-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes recording-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(248, 81, 73, 0);
+            }
+        }
+
+        .coach-notice {
+            margin-top: 10px;
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* ===== SCROLLBARS ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--muted);
+        }
+
+        /* ===== VIOLATION OVERLAY ===== */
+        .violation-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(248, 81, 73, 0.15);
+            backdrop-filter: blur(4px);
+            border: 3px solid var(--danger);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+
+        .violation-modal {
+            background: var(--surface);
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .violation-modal h2 {
+            color: var(--danger);
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .violation-modal p {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .arena {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+
+            body {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+
+<body oncopy="return false" oncontextmenu="return false">
+
+    <!-- VIOLATION OVERLAY -->
+    <div class="violation-overlay" id="violationOverlay">
+        <div class="violation-modal">
+            <h2>⚠️ Integrity Violation</h2>
+            <p id="violationMsg">A tab switch was detected. This has been logged. Return to the practice session.</p>
+            <button class="btn btn-outline" onclick="dismissViolation()">I understand. Resume Practice</button>
+        </div>
+    </div>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <span class="logo">⚡ DSA Arena</span>
+            <span class="difficulty-badge difficulty-{{ difficulty }}" id="diffBadge">{{ difficulty | capitalize
+                }}</span>
+        </div>
+        <div class="topbar-right">
+            <div class="integrity-badge" id="integrityBadge">
+                <span class="integrity-dot" id="integrityDot"></span>
+                <span id="integrityLabel">Integrity Active</span>
+            </div>
+            <div class="ai-voice-badge" id="aiBadge" onclick="toggleAIMute()">
+                <span class="ai-speaking-dot" id="aiDot"></span>
+                <span id="aiLabel">AI Voice On</span>
+            </div>
+            <button class="btn btn-outline" onclick="newProblem('{{ difficulty }}')">↺ New Problem</button>
+            <a href="/" class="btn btn-outline">← Exit</a>
+        </div>
+    </div>
+
+    <!-- ARENA -->
+    <div class="arena">
+
+        <!-- COL 1: PROBLEM STATEMENT -->
+        <div class="problem-panel">
+            <div>
+                <div class="section-label">Problem</div>
+                <div class="problem-title" id="problemTitle">{{ problem.title }}</div>
+            </div>
+
+            <div>
+                <div class="section-label">Description</div>
+                <div class="problem-statement" id="problemStatement">{{ problem.statement }}</div>
+            </div>
+
+            <div>
+                <div class="section-label">Examples</div>
+                {% for ex in problem.examples %}
+                <div class="example-box">
+                    <div class="ex-label">Example {{ loop.index }}</div>
+                    <div class="ex-line"><span>Input: </span>{{ ex.input }}</div>
+                    <div class="ex-line"><span>Output: </span>{{ ex.output }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <div class="section-label">Constraints</div>
+                <div class="constraints-box">{{ problem.constraints }}</div>
+            </div>
+
+            <div>
+                <div class="section-label">New Problem</div>
+                <div class="difficulty-select">
+                    <button class="diff-btn {% if difficulty == 'easy' %}active-easy{% endif %}"
+                        onclick="newProblem('easy')">Easy</button>
+                    <button class="diff-btn {% if difficulty == 'medium' %}active-medium{% endif %}"
+                        onclick="newProblem('medium')">Medium</button>
+                    <button class="diff-btn {% if difficulty == 'hard' %}active-hard{% endif %}"
+                        onclick="newProblem('hard')">Hard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- COL 2: CODE EDITOR -->
+        <div class="editor-panel">
+            <div class="editor-topbar">
+                <span class="lang-tag">Python 3</span>
+                <div class="editor-actions">
+                    <button class="btn btn-purple" onclick="analyzeApproach()">🔍 Analyze Approach</button>
+                    <button class="btn btn-success" onclick="clearCode()">✕ Clear</button>
+                </div>
+            </div>
+
+            <textarea id="codeEditor" spellcheck="false"
+                placeholder="# Write your Python solution here...&#10;# The AI coach won't reveal the answer, but will guide your thinking!&#10;&#10;def solution():&#10;    pass"></textarea>
+
+            <div id="approachPanel">
+                <div class="section-label" style="margin-bottom: 12px;">Approach Analysis</div>
+                <div class="approach-grid">
+                    <div class="approach-stat">
+                        <div class="stat-label">Approach</div>
+                        <div class="stat-value" id="approachName" style="font-size:0.85rem; color: var(--accent);">—
+                        </div>
+                    </div>
+                    <div class="approach-stat">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeComplexity" style="color: var(--warning);">—</div>
+                    </div>
+                    <div class="approach-stat">
+                        <div class="stat-label">Space</div>
+                        <div class="stat-value" id="spaceComplexity" style="color: var(--success);">—</div>
+                    </div>
+                </div>
+                <div class="quality-bar">
+                    <span class="quality-label">Quality:</span>
+                    <div class="quality-pills" id="qualityPills"></div>
+                    <span id="betterExists" style="font-size:0.78rem; color: var(--muted);"></span>
+                </div>
+                <div class="hint-box" id="hintBox" style="display:none;"></div>
+            </div>
+
+            <div class="editor-footer">
+                <span style="font-size:0.78rem; color: var(--muted);">Tab = 4 spaces &nbsp;|&nbsp; Ctrl+A to select
+                    all</span>
+                <span id="analyzeStatus" style="font-size:0.78rem; color: var(--muted);"></span>
+            </div>
+        </div>
+
+        <!-- COL 3: AI COACH -->
+        <div class="coach-panel">
+            <div class="coach-header">
+                <div class="coach-title">
+                    <span style="font-size:1.2rem;">🤖</span> AI Practice Coach
+                </div>
+                <div class="coach-subtitle">Speak or type your approach. The AI will guide — never spoil.</div>
+            </div>
+
+            <div id="chatMessages">
+                <div class="msg msg-coach">
+                    <div class="msg-label">Coach</div>
+                    Hello! I'm your Socratic coach for this session. Read the problem carefully first. When you have an
+                    initial idea — even a rough one — tell me your thought process. I won't give you the answer, but
+                    I'll help you find it. Ready? What's your first instinct?
+                </div>
+            </div>
+
+            <div class="coach-input-area">
+                <div class="text-input-row">
+                    <input type="text" id="chatTextInput" placeholder="Describe your approach..."
+                        onkeydown="if(event.key==='Enter') sendTextMessage()">
+                    <button class="btn btn-accent" onclick="sendTextMessage()">Send</button>
+                </div>
+                <div class="voice-controls">
+                    <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+                        <span>🎤</span> <span id="micLabel">Speak to Coach</span>
+                    </button>
+                </div>
+                <div class="coach-notice">
+                    🔒 Coach will guide, not spoil. Answers are never revealed.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        // AI VOICE ENGINE (Text-to-Speech)
+        // ============================================================
+        let aiMuted = false;
+        let currentUtterance = null;
+
+        function speak(text, onDone) {
+            if (aiMuted || !window.speechSynthesis) { if (onDone) onDone(); return; }
+            window.speechSynthesis.cancel();
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.rate = 1.0; utt.pitch = 1.0; utt.volume = 1;
+            const voices = window.speechSynthesis.getVoices();
+            const best = voices.find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Microsoft David') || (v.lang.startsWith('en') && !v.name.includes('Natural')));
+            if (best) utt.voice = best;
+            document.getElementById('aiLabel').textContent = 'AI Speaking...';
+            utt.onend = () => { document.getElementById('aiLabel').textContent = 'AI Voice On'; if (onDone) onDone(); };
+            utt.onerror = () => { document.getElementById('aiLabel').textContent = 'AI Voice On'; if (onDone) onDone(); };
+            currentUtterance = utt;
+            window.speechSynthesis.speak(utt);
+        }
+
+        function toggleAIMute() {
+            aiMuted = !aiMuted;
+            const badge = document.getElementById('aiBadge');
+            const label = document.getElementById('aiLabel');
+            if (aiMuted) {
+                window.speechSynthesis.cancel();
+                badge.classList.add('muted');
+                label.textContent = 'AI Muted';
+            } else {
+                badge.classList.remove('muted');
+                label.textContent = 'AI Voice On';
+            }
+        }
+
+        // Speak the first question once voices load
+        window.speechSynthesis.onvoiceschanged = () => {
+            speak("Welcome to the DSA Practice Arena. I'm your AI coach. Your problem today is: " + document.getElementById('problemTitle').textContent + ". Take a moment to read it, then tell me your first thought!");
+        };
+        setTimeout(() => {
+            if (window.speechSynthesis.getVoices().length > 0) {
+                speak("Welcome to the DSA Practice Arena. I'm your AI coach. Tell me your first thought on the problem!");
+            }
+        }, 900);
+
+        // ============================================================
+        // VOICE MIC (Speech-to-Text → Coach Chat)
+        // ============================================================
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        async function toggleMic() {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                        await sendVoiceToCoach(blob);
+                        stream.getTracks().forEach(t => t.stop());
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    const btn = document.getElementById('micBtn');
+                    btn.classList.add('recording');
+                    document.getElementById('micLabel').textContent = 'Stop Recording';
+                } catch (e) {
+                    alert('Microphone access denied. Please allow mic access to use voice coaching.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                const btn = document.getElementById('micBtn');
+                btn.classList.remove('recording');
+                document.getElementById('micLabel').textContent = 'Processing...';
+            }
+        }
+
+        async function sendVoiceToCoach(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob);
+            await sendToCoach(formData);
+        }
+
+        async function sendTextMessage() {
+            const input = document.getElementById('chatTextInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            const formData = new FormData();
+            formData.append('message', text);
+            await sendToCoach(formData, text);
+        }
+
+        async function sendToCoach(formData, displayText) {
+            // Show user typing indicator
+            if (displayText) appendMessage('user', displayText);
+            const typingEl = appendTyping();
+
+            try {
+                const resp = await fetch('/practice_voice_chat', { method: 'POST', body: formData });
+                const data = await resp.json();
+                typingEl.remove();
+                const userMsg = data.user_message || displayText || '...';
+                if (!displayText) appendMessage('user', userMsg);
+                appendMessage('coach', data.coach_reply);
+                speak(data.coach_reply);
+            } catch (e) {
+                typingEl.remove();
+                appendMessage('coach', "I couldn't hear that clearly. Could you try again?");
+            } finally {
+                document.getElementById('micLabel').textContent = 'Speak to Coach';
+            }
+        }
+
+        function appendMessage(role, text) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `msg msg-${role}`;
+            div.innerHTML = `<div class="msg-label">${role === 'coach' ? 'Coach' : 'You'}</div>${escHtml(text)}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function appendTyping() {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'msg msg-coach';
+            div.innerHTML = `<div class="msg-label">Coach</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function escHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        }
+
+        // ============================================================
+        // CODE APPROACH ANALYZER
+        // ============================================================
+        async function analyzeApproach() {
+            const code = document.getElementById('codeEditor').value.trim();
+            if (!code || code === '') {
+                document.getElementById('analyzeStatus').textContent = 'Write some code first!';
+                return;
+            }
+
+            document.getElementById('analyzeStatus').textContent = 'Analyzing approach...';
+            document.getElementById('approachPanel').style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('code', code);
+
+            try {
+                const resp = await fetch('/practice_analyze', { method: 'POST', body: formData });
+                const data = await resp.json();
+
+                document.getElementById('approachName').textContent = data.approach_name || '—';
+                document.getElementById('timeComplexity').textContent = data.time_complexity || '—';
+                document.getElementById('spaceComplexity').textContent = data.space_complexity || '—';
+
+                // Quality pill
+                const pills = document.getElementById('qualityPills');
+                pills.innerHTML = '';
+                const pillClass = { good: 'pill-good', acceptable: 'pill-acceptable', can_improve: 'pill-improve' };
+                const pillLabel = { good: '✓ Good', acceptable: '~ Acceptable', can_improve: '↑ Can Improve' };
+                const q = data.approach_quality || 'acceptable';
+                pills.innerHTML = `<span class="quality-pill ${pillClass[q] || 'pill-acceptable'}">${pillLabel[q] || q}</span>`;
+
+                document.getElementById('betterExists').textContent = data.better_approach_exists ? '· Better approach exists' : '· This may be optimal';
+
+                // Hint box
+                const hintBox = document.getElementById('hintBox');
+                if (data.hint_to_improve) {
+                    hintBox.style.display = 'block';
+                    hintBox.innerHTML = `<strong style="color:#a78bfa;">💡 Coach Hint:</strong> ${escHtml(data.what_they_did_well)} ${escHtml(data.hint_to_improve)}`;
+                }
+
+                document.getElementById('approachPanel').style.display = 'block';
+                document.getElementById('analyzeStatus').textContent = '';
+
+                // Also speak the hint
+                speak(`Your approach is ${data.approach_name}. ${data.what_they_did_well} ${data.hint_to_improve}`);
+
+            } catch (e) {
+                document.getElementById('analyzeStatus').textContent = 'Analysis failed, try again.';
+            }
+        }
+
+        // ============================================================
+        // UTILITY
+        // ============================================================
+        function clearCode() {
+            document.getElementById('codeEditor').value = '';
+            document.getElementById('approachPanel').style.display = 'none';
+            document.getElementById('analyzeStatus').textContent = '';
+        }
+
+        function newProblem(difficulty) {
+            window.location.href = `/practice?difficulty=${difficulty}`;
+        }
+
+        // Tab key in editor = 4 spaces
+        document.getElementById('codeEditor').addEventListener('keydown', function (e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+        });
+
+        // ============================================================
+        // INTEGRITY / PROCTORING
+        // ============================================================
+        let violations = 0;
+        const MAX_VIOLATIONS = 3;
+
+        function reportViolation(reason) {
+            violations++;
+            fetch('/log_cheat', { method: 'POST' });
+
+            const badge = document.getElementById('integrityBadge');
+            const label = document.getElementById('integrityLabel');
+            badge.classList.add('violated');
+            label.textContent = `${violations} Violation${violations > 1 ? 's' : ''}`;
+
+            const overlay = document.getElementById('violationOverlay');
+            document.getElementById('violationMsg').textContent = `Tab switch detected (${violations}/${MAX_VIOLATIONS}). This session is being monitored. Each violation is logged.`;
+            overlay.style.display = 'flex';
+
+            // Also speak the warning
+            speak(`Warning! Tab switch detected. This has been logged as violation number ${violations}.`);
+
+            if (violations >= MAX_VIOLATIONS) {
+                document.getElementById('violationMsg').textContent = 'Maximum violations reached. This session has been flagged.';
+            }
+        }
+
+        function dismissViolation() {
+            document.getElementById('violationOverlay').style.display = 'none';
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) reportViolation('tab_switch');
+        });
+
+        document.onkeydown = (e) => {
+            if (e.keyCode === 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
+            if (e.ctrlKey && e.keyCode === 85) return false;
+        };
+    </script>
+
+</body>
+
+</html>

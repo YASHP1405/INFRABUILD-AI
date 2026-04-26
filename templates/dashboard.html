@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>InfraBuild AI Automation - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background: #090b14;
+      color: white;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 5%;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar .logo {
+      font-weight: 700;
+      font-size: 20px;
+      background: linear-gradient(135deg, #00eaff, #6a5cff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logout-btn {
+      background: rgba(255, 60, 60, 0.1);
+      color: #ff4d4d;
+      border: 1px solid rgba(255, 60, 60, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 60, 60, 0.2);
+    }
+
+    .main {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .welcome {
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .welcome h1 {
+      font-size: 36px;
+      margin: 0;
+    }
+
+    .welcome p {
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    /* UPLOAD SECTION */
+    .upload-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 60px 20px;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+      transition: 0.3s;
+    }
+
+    .upload-section:hover {
+      border-color: #6a5cff;
+      background: rgba(106, 92, 255, 0.05);
+    }
+
+    .upload-section i {
+      font-size: 48px;
+      color: #6a5cff;
+      margin-bottom: 20px;
+    }
+
+    .upload-form {
+      margin-top: 30px;
+    }
+
+    .upload-btn {
+      background: linear-gradient(135deg, #6a5cff, #00eaff);
+      border: none;
+      padding: 14px 30px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 10px 20px rgba(106, 92, 255, 0.3);
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 0 auto 20px;
+      color: #ccc;
+    }
+
+    /* MODULE CARDS (Once Uploaded) */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 50px;
+    }
+
+    .module-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      text-decoration: none;
+      color: white;
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .module-card:hover {
+      transform: translateY(-10px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .module-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .icon-blue {
+      background: rgba(0, 234, 255, 0.1);
+      color: #00eaff;
+    }
+
+    .icon-purple {
+      background: rgba(106, 92, 255, 0.1);
+      color: #6a5cff;
+    }
+
+    .icon-green {
+      background: rgba(0, 200, 150, 0.1);
+      color: #00c896;
+    }
+
+    .icon-orange {
+      background: rgba(255, 150, 0, 0.1);
+      color: #ff9600;
+    }
+
+    .icon-red {
+      background: rgba(255, 77, 77, 0.1);
+      color: #ff4d4d;
+    }
+
+    .icon-gray {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ddd;
+    }
+
+    .module-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 22px;
+    }
+
+    .module-card p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .module-action {
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6a5cff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.3s;
+    }
+
+    .module-card:hover .module-action {
+      color: #00eaff;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      background: rgba(0, 200, 150, 0.1);
+      color: #00c896;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+
+    /* 2-COLUMN LAYOUT */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .sidebar {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 25px;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+      font-size: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #aaa;
+      font-size: 15px;
+    }
+
+    .stat-val {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .val-high {
+      color: #00c896;
+    }
+
+    .val-mid {
+      color: #ff9600;
+    }
+
+    .history-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      color: #888;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .missing-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .skill-tag {
+      background: rgba(255, 77, 77, 0.1);
+      color: #ff4d4d;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      border: 1px solid rgba(255, 77, 77, 0.2);
+    }
+
+    .practice-btn {
+      background: linear-gradient(135deg, #6a5cff, #00eaff);
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .practice-btn:hover {
+      box-shadow: 0 5px 15px rgba(106, 92, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* FLOATING CHATBOT */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #6a5cff, #00eaff);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(106, 92, 255, 0.4);
+      z-index: 1000;
+      transition: 0.3s;
+    }
+
+    .chatbot-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 350px;
+      background: #161b2e;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .chat-header {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px 20px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-messages {
+      padding: 15px;
+      height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-size: 13px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    .msg.bot {
+      background: rgba(106, 92, 255, 0.1);
+      color: #fff;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    .msg.user {
+      background: rgba(0, 234, 255, 0.1);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .chat-input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: white;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .chat-send {
+      background: transparent;
+      border: none;
+      color: #00eaff;
+      cursor: pointer;
+      padding: 0 15px;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .chat-send:hover {
+      color: #6a5cff;
+    }
+
+    /* Loader */
+    #loader {
+      display: none;
+      color: #00eaff;
+      margin-top: 20px;
+    }
+
+    /* XP / STREAK WIDGET */
+    .xp-widget {
+      background: linear-gradient(135deg, rgba(106, 92, 255, 0.12), rgba(0, 234, 255, 0.06));
+      border: 1px solid rgba(106, 92, 255, 0.25);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .xp-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .xp-level {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6a5cff;
+    }
+
+    .xp-streak {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .xp-bar-wrap {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6a5cff, #00eaff);
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .xp-stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .xp-stat {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .xp-stat .sv {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .xp-stat .sl {
+      font-size: 0.68rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .new-feature-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 8px;
+      margin-left: 6px;
+      background: linear-gradient(135deg, #6a5cff, #00eaff);
+      color: white;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo"><i class="fa-solid fa-robot"></i> InfraBuild AI</div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span id="userEmail" style="color: #aaa; font-size: 14px;"></span>
+      <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i> Logout</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="welcome">
+      <h1>Welcome to Your AI Command Center</h1>
+      <p>Unlock intelligent automation and analytics tailored to your profile.</p>
+    </div>
+
+    {% if not analysis_data %}
+    <!-- UPLOAD STATE -->
+    <div class="upload-section">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <h2>Upload Your Resume to Begin</h2>
+      <p style="color: #888;">We need to extract your skills to personalize the AI tools.</p>
+
+      <form class="upload-form" action="{{ url_for('upload_resume') }}" method="POST" enctype="multipart/form-data"
+        onsubmit="showLoader()">
+        <input type="file" name="resume" accept=".pdf,.docx,.txt" required />
+        <button type="submit" class="upload-btn">Initialize AI Models</button>
+        <div id="loader"><i class="fa-solid fa-spinner fa-spin"></i> Processing and Analyzing Resume...</div>
+      </form>
+    </div>
+    {% else %}
+    <!-- DASHBOARD LAYOUT (2-COLUMN) -->
+    <div class="dashboard-layout">
+      <!-- LEFT COLUMN (Sidebar) -->
+      <div class="sidebar">
+        <h2><i class="fa-solid fa-compass"></i> Navigation</h2>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; font-size: 14px;">
+          <a href="#resume-analyzer" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-file-signature"
+              style="width: 20px;"></i> Resume Analyzer</a>
+          <a href="#cognitive-test" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-brain"
+              style="width: 20px;"></i> Cognitive Test</a>
+          <a href="#coding-simulator" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-code"
+              style="width: 20px;"></i> Coding Simulator</a>
+          <a href="#company-simulation" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-building"
+              style="width: 20px;"></i> Company Simulation</a>
+          <a href="#job-matcher" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-briefcase"
+              style="width: 20px;"></i> Job Matcher</a>
+          <a href="#github-intelligence" style="color: #aaa; text-decoration: none;"><i class="fa-brands fa-github"
+              style="width: 20px;"></i> GitHub Intelligence</a>
+          <a href="#mock-code-review" style="color: #aaa; text-decoration: none;"><i class="fa-solid fa-laptop-code"
+              style="width: 20px;"></i> Mock Code Review</a>
+        </div>
+
+        <h2><i class="fa-solid fa-chart-line"></i> Performance</h2>
+        <div class="stat-row"><span>Overall Score</span> <span
+            class="stat-val {{ 'val-high' if overall >= 75 else 'val-mid' }}">{{ overall }}%</span></div>
+        <div class="stat-row"><span>Resume Match</span> <span class="stat-val">{{ resume }}%</span></div>
+        <div class="stat-row"><span>Cognitive Test</span> <span class="stat-val">{{ cognitive }}%</span></div>
+        <div class="stat-row"><span>Coding Logic</span> <span class="stat-val">{{ coding }}%</span></div>
+
+        <h2 style="margin-top: 30px;"><i class="fa-solid fa-clock-rotate-left"></i> History</h2>
+        {% if history %}
+        {% for h in history[:3] %}
+        <div class="history-item">
+          <div><strong style="color: white;">{{ h[0].split(' ')[0] }}</strong> - <span style="color: #bbb;">{{ h[7]
+              }}</span></div>
+          <div style="margin-top: 5px;">Score: {{ h[5] }}% | Code: {{ h[3] }}%</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="history-item">No interview history yet.</div>
+        {% endif %}
+
+        <!-- XP / STREAK WIDGET -->
+        <div class="xp-widget" id="xp-widget" style="display:none;">
+          <div class="xp-top">
+            <div>
+              <div class="xp-level" id="xp-level-lbl">Level 1 · Rookie</div>
+              <div style="font-size:1rem;font-weight:800;color:#fff;margin-top:2px;"><span id="xp-total">0</span> <span
+                  style="font-size:0.75rem;color:#64748b;">/ <span id="xp-next">100</span> XP</span></div>
+            </div>
+            <div class="xp-streak"><span style="font-size:1.2rem;">🔥</span> <span id="xp-streak">0</span> day streak
+            </div>
+          </div>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-fill" id="xp-bar" style="width:0%"></div>
+          </div>
+          <div class="xp-stats-row">
+            <div class="xp-stat">
+              <div class="sv" id="xp-interviews">0</div>
+              <div class="sl">Interviews</div>
+            </div>
+            <div class="xp-stat">
+              <div class="sv" id="xp-best">0%</div>
+              <div class="sl">Best Score</div>
+            </div>
+          </div>
+          <a href="/leaderboard"
+            style="display:block;text-align:center;margin-top:12px;font-size:0.78rem;font-weight:700;color:#6a5cff;text-decoration:none;">🏆
+            View Global Leaderboard &rarr;</a>
+        </div>
+
+        <h2 style="margin-top: 30px;"><i class="fa-solid fa-dumbbell"></i> Practice Arena</h2>
+        <p style="font-size: 13px; color: #aaa; margin-bottom: 10px;">Missing skills from top job matches:</p>
+        <div class="missing-skills">
+          {% for skill in missing_skills %}
+          <span class="skill-tag">{{ skill }}</span>
+          {% else %}
+          <span style="font-size: 12px; color: #00c896;">All core skills matched!</span>
+          {% endfor %}
+        </div>
+        <a href="{{ url_for('practice') }}" class="practice-btn">Enter Practice Arena &rarr;</a>
+      </div>
+
+      <!-- RIGHT COLUMN (Modules) -->
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="status-badge" style="margin: 0;"><i class="fa-solid fa-check-circle"></i> Profile: {{
+            analysis_data.predicted_role }}</div>
+          <form action="{{ url_for('home') }}" method="GET" style="margin: 0;">
+            <input type="hidden" name="reset" value="1">
+            <button type="submit"
+              style="background:none; border:1px solid rgba(255,255,255,0.2); color: #ccc; padding: 6px 12px; border-radius: 20px; cursor:pointer; font-family: inherit;"
+              title="Clear session and start over">Reset Session</button>
+          </form>
+        </div>
+
+        {% if sim_history %}
+        <div
+          style="background: rgba(106, 92, 255, 0.05); border: 1px solid rgba(106, 92, 255, 0.2); border-radius: 20px; padding: 25px; margin-bottom: 30px;">
+          <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #fff;"><i class="fa-solid fa-building-user"
+              style="color: #6a5cff; margin-right: 8px;"></i> Recent Company Interviews</h3>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            {% for sim in sim_history[:2] %}
+            <div
+              style="background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); display: flex; gap: 20px; align-items: center;">
+              <div
+                style="font-size: 24px; font-weight: 800; color: {{ '#00c896' if sim[3] >= 80 else '#fbbf24' if sim[3] >= 65 else '#ff4d6d' }}; width: 60px; text-align: center;">
+                {{ sim[3]|int }}%
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #fff; margin-bottom: 4px; font-size: 15px;">{{ sim[1] }} • <span
+                    style="font-weight: 400; color: #00eaff;">{{ sim[2] }}</span></div>
+                <div style="font-size: 12px; color: #aaa; margin-bottom: 8px;">
+                  <span>Apti: <strong style="color:#fff;">{{ sim[4] }}%</strong></span> &nbsp;|&nbsp;
+                  <span>DSA: <strong style="color:#fff;">{{ sim[5] }}%</strong></span> &nbsp;|&nbsp;
+                  <span>HR: <strong style="color:#fff;">{{ sim[6] }}%</strong></span>
+                </div>
+                <div
+                  style="font-size: 13px; color: #ccc; line-height: 1.4; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+                  <i class="fa-solid fa-robot" style="color:#6a5cff; margin-right:4px;"></i> {{ sim[7] }}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="module-grid" style="margin-top: 0;">
+          <!-- 1. Resume Analyzer -->
+          <a href="{{ url_for('resume_analyzer') }}" class="module-card">
+            <div class="module-icon icon-purple"><i class="fa-solid fa-file-signature"></i></div>
+            <h3>Resume Analyzer</h3>
+            <p>Deep scan of your verified and partial skills. Includes an AI-led Q&A mock interview round.</p>
+            <div class="module-action">Access Analyzer <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 2. Cognitive Aptitude -->
+          <a href="{{ url_for('cognitive_round') }}" class="module-card">
+            <div class="module-icon icon-orange"><i class="fa-solid fa-brain"></i></div>
+            <h3>Cognitive Test</h3>
+            <p>Challenge your aptitude and core engineering knowledge with dynamically generated AI questions.</p>
+            <div class="module-action">Start Assessment <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 3. Coding Simulator -->
+          <a href="{{ url_for('coding_round') }}" class="module-card">
+            <div class="module-icon icon-blue"><i class="fa-solid fa-code"></i></div>
+            <h3>Coding Simulator</h3>
+            <p>Code an adaptive algorithmic challenge based on your technical stack, verified by our AI logic.</p>
+            <div class="module-action">Launch Simulator <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 4. Job Match -->
+          <a href="{{ url_for('job_recommendations') }}" class="module-card">
+            <div class="module-icon icon-green"><i class="fa-solid fa-briefcase"></i></div>
+            <h3>Job Matches</h3>
+            <p>View highly personalized job recommendations and suitability scores based on your extracted profile.</p>
+            <div class="module-action">View Matches <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 5. GitHub Dashboard -->
+          <a href="{{ url_for('github.github_dashboard_view') }}" class="module-card">
+            <div class="module-icon icon-gray"><i class="fa-brands fa-github"></i></div>
+            <h3>GitHub Intelligence</h3>
+            <p>Analyze repos, fetch code stats, and generate a GitHub authenticity verification score.</p>
+            <div class="module-action">View Insights <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 6. Mock Code Review -->
+          <a href="{{ url_for('mock_review') }}" class="module-card">
+            <div class="module-icon icon-red"><i class="fa-solid fa-laptop-code"></i></div>
+            <h3>Mock Code Review</h3>
+            <p>Senior-level module simulating a PR review. Analyze and optimize flawed code.</p>
+            <div class="module-action">Start Review <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 7. Verified Portfolio -->
+          <a href="{{ url_for('portfolio') }}" class="module-card">
+            <div class="module-icon icon-blue"><i class="fa-solid fa-address-card"></i></div>
+            <h3>Verified Portfolio</h3>
+            <p>A globally shareable dashboard showing interview stats, badges, and verified skills.</p>
+            <div class="module-action">Generate Portfolio <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 8. Resume Maker -->
+          <a href="https://resumebuilder-wapp.netlify.app/" class="module-card">
+            <div class="module-icon icon-purple"><i class="fa-solid fa-file-pen"></i></div>
+            <h3>AI Resume Maker</h3>
+            <p>Build an ATS-optimized resume directly customized to the job roles you matched with.</p>
+            <div class="module-action">Build Resume <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 9. AI Roadmap Generator (Native) -->
+          <a href="/roadmap" class="module-card" style="border-color:rgba(0,200,150,0.15);">
+            <div class="module-icon icon-green"><i class="fa-solid fa-map-location-dot"></i></div>
+            <h3>AI Career Roadmap <span class="new-feature-badge">NEW</span></h3>
+            <p>Personalized week-by-week action plan powered by Groq AI. Check off tasks to earn XP and track progress.
+            </p>
+            <div class="module-action">Build My Roadmap <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <!-- 10. Video Behavioral Interview -->
+          <a href="/video_interview" class="module-card" style="border-color:rgba(251,113,133,0.15);">
+            <div class="module-icon" style="background:rgba(251,113,133,0.1);color:#fb7185;"><i
+                class="fa-solid fa-video"></i></div>
+            <h3>Video Interview AI <span class="new-feature-badge">NEW</span></h3>
+            <p>Record behavioral answers via webcam. AI evaluates using STAR method — confidence, clarity, and structure
+              scored.</p>
+            <div class="module-action" style="color:#fb7185;">Start Interview <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </a>
+
+          <!-- 11. Global Leaderboard -->
+          <a href="/leaderboard" class="module-card" style="border-color:rgba(245,158,11,0.15);">
+            <div class="module-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;"><i
+                class="fa-solid fa-trophy"></i></div>
+            <h3>Global Leaderboard <span class="new-feature-badge">NEW</span></h3>
+            <p>See your XP rank among all candidates. Earn XP for every interview, task, and video session you complete.
+            </p>
+            <div class="module-action" style="color:#f59e0b;">View Rankings <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </a>
+
+          <!-- 12. Company Interview Simulation -->
+          <a href="{{ url_for('company_simulation') }}" class="module-card">
+            <div class="module-icon icon-orange"><i class="fa-solid fa-building-user"></i></div>
+            <h3>Company Interview Simulation</h3>
+            <p>Experience tailored mock interviews for top tech companies and specific job roles.</p>
+            <div class="module-action">Start Simulation <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- FLOATING CHATBOT -->
+  <div class="chatbot-btn" onclick="toggleChat()"><i class="fa-solid fa-message"></i></div>
+  <div class="chatbot-window" id="chatWindow">
+    <div class="chat-header">
+      <span><i class="fa-solid fa-robot"></i> Career Coach AI</span>
+      <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChat()"></i>
+    </div>
+    <div class="chat-messages" id="chatBody">
+      <div class="msg bot">Hello! I am your AI Career Coach. Ask me how to navigate the platform or how algorithms
+        affect your score.</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..."
+        onkeypress="handleChat(event)" />
+      <button class="chat-send" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- FIREBASE AUTH (Retained) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwBd0kuXzfB_FkiDAEFxfLhopl41afhm4",
+      authDomain: "infrabuild-ai.firebaseapp.com",
+      projectId: "infrabuild-ai",
+      storageBucket: "infrabuild-ai.firebasestorage.app",
+      messagingSenderId: "409009047474",
+      appId: "1:409009047474:web:0f0f31c15b79a6270786ab",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("userEmail").innerText = user.email;
+      } else {
+        // If not logged in, force them back to index
+        window.location.href = "/";
+      }
+    });
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        window.location.href = "/";
+      });
+    };
+  </script>
+  <script>
+    function showLoader() {
+      document.getElementById('loader').style.display = 'block';
+    }
+
+    // Chatbot logic
+    function toggleChat() {
+      const win = document.getElementById("chatWindow");
+      win.style.display = win.style.display === "flex" ? "none" : "flex";
+    }
+    function handleChat(e) {
+      if (e.key === 'Enter') sendChat();
+    }
+    async function sendChat() {
+      const input = document.getElementById("chatInput");
+      const body = document.getElementById("chatBody");
+      const text = input.value.trim();
+      if (!text) return;
+
+      body.innerHTML += `<div class="msg user">${text}</div>`;
+      input.value = "";
+      body.scrollTop = body.scrollHeight;
+
+      try {
+        const res = await fetch("/api/helpdesk", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: text })
+        });
+        const data = await res.json();
+        body.innerHTML += `<div class="msg bot">${data.answer || "Sorry, an error occurred."}</div>`;
+        body.scrollTop = body.scrollHeight;
+      } catch (e) {
+        body.innerHTML += `<div class="msg bot">Network error connecting to AI.</div>`;
+      }
+    }
+  </script>
+
+  <script>
+    // XP Widget loader — runs after Firebase sets userEmail
+    const LEVEL_NAMES = ['Rookie', 'Apprentice', 'Explorer', 'Developer', 'Engineer', 'Senior', 'Staff', 'Principal', 'Architect', 'Expert', 'Legend'];
+    async function loadXPWidget(email, username) {
+      if (!email) return;
+      try {
+        const res = await fetch('/api/get_user_stats', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const d = await res.json();
+        const widget = document.getElementById('xp-widget');
+        if (!widget) return;
+        widget.style.display = 'block';
+        document.getElementById('xp-level-lbl').textContent = `Level ${d.level || 1} · ${LEVEL_NAMES[(d.level || 1) - 1] || 'Legend'}`;
+        document.getElementById('xp-total').textContent = d.xp || 0;
+        document.getElementById('xp-next').textContent = d.xp_for_next || 100;
+        document.getElementById('xp-streak').textContent = d.streak || 0;
+        document.getElementById('xp-interviews').textContent = d.total_interviews || 0;
+        document.getElementById('xp-best').textContent = (d.best_score ? Math.round(d.best_score) : 0) + '%';
+        setTimeout(() => {
+          document.getElementById('xp-bar').style.width = (d.level_progress || 0) + '%';
+        }, 300);
+
+        // Award daily login XP
+        fetch('/api/award_xp', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, activity: 'daily_login', score: 0, username })
+        });
+      } catch (e) { console.log('XP load error', e); }
+    }
+
+    // Hook into existing Firebase auth — wait for userEmail to be set
+    (function pollEmail() {
+      const interval = setInterval(() => {
+        const emailEl = document.getElementById('userEmail');
+        if (emailEl && emailEl.innerText) {
+          clearInterval(interval);
+          loadXPWidget(emailEl.innerText, emailEl.innerText.split('@')[0]);
+        }
+      }, 500);
+      setTimeout(() => clearInterval(interval), 10000); // stop after 10s
+    })();
+  </script>
+</body>
+
+</html>

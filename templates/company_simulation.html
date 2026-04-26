@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Interview Simulation | Inferno AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg: #090b14;
+            --surface: rgba(15,23,42,0.85);
+            --surface2: rgba(30,41,59,0.5);
+            --border: rgba(255,255,255,0.07);
+            --border-h: rgba(255,255,255,0.14);
+            --text: #f1f5f9;
+            --dim: #64748b;
+            --cyan: #00eaff;
+            --indigo: #6a5cff;
+            --green: #00c896;
+            --red: #ff4d6d;
+            --amber: #fbbf24;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 10% 5%, rgba(106,92,255,0.1) 0%, transparent 40%),
+                radial-gradient(ellipse at 90% 95%, rgba(0,234,255,0.06) 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* NavBar */
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 40px;
+            background: rgba(9,11,20,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--cyan), var(--indigo));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            text-decoration: none;
+        }
+        .logo-box { width: 32px; height: 32px; background: linear-gradient(135deg, var(--indigo), var(--cyan)); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+        .nav-back { display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--dim); text-decoration: none; font-size: 0.84rem; transition: all 0.2s; }
+        .nav-back:hover { border-color: var(--border-h); color: var(--text); }
+
+        /* Main */
+        .main { flex: 1; max-width: 1080px; width: 100%; margin: 0 auto; padding: 36px 24px 72px; }
+
+        /* Steps */
+        .step { display: none; animation: fadeUp 0.4s ease; }
+        .step.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Step Header */
+        .step-header { text-align: center; margin-bottom: 40px; }
+        .step-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--cyan); background: rgba(0,234,255,0.08); border: 1px solid rgba(0,234,255,0.15); padding: 5px 14px; border-radius: 20px; margin-bottom: 14px; }
+        .step-header h1 { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--indigo), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; }
+        .step-header p { color: var(--dim); font-size: 0.95rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+        /* Company Grid */
+        .company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+        .company-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+            padding: 32px 20px; text-align: center; cursor: pointer;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .company-card::before { content: ''; position: absolute; inset: 0; border-radius: 18px; background: linear-gradient(135deg, rgba(106,92,255,0.08), rgba(0,234,255,0.08)); opacity: 0; transition: opacity 0.3s; }
+        .company-card:hover::before { opacity: 1; }
+        .company-card:hover { border-color: rgba(106,92,255,0.4); transform: translateY(-6px); box-shadow: 0 16px 40px rgba(106,92,255,0.15); }
+        .company-emoji { font-size: 2.4rem; margin-bottom: 12px; display: block; }
+        .company-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .company-card .type { font-size: 0.75rem; color: var(--dim); }
+
+        /* Role Grid */
+        .role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+        .role-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            padding: 20px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px;
+            transition: all 0.25s;
+        }
+        .role-card:hover { border-color: rgba(0,234,255,0.3); background: rgba(0,234,255,0.04); transform: translateX(4px); }
+        .role-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .role-card h3 { font-size: 0.92rem; font-weight: 600; }
+        .role-card p { font-size: 0.77rem; color: var(--dim); margin-top: 2px; }
+
+        /* Category Tabs */
+        .cat-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .cat-tab { padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .cat-tab.active { background: rgba(0,234,255,0.1); border-color: rgba(0,234,255,0.3); color: var(--cyan); }
+
+        /* Simulation  */
+        .sim-layout { display: flex; gap: 24px; align-items: flex-start; }
+        .sim-left { width: 220px; flex-shrink: 0; }
+        .sim-right { flex: 1; }
+
+        .sidebar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .timer-box { font-size: 2rem; font-weight: 800; color: var(--red); text-align: center; padding: 14px; border: 1px solid rgba(255,77,109,0.25); border-radius: 12px; background: rgba(255,77,109,0.06); font-variant-numeric: tabular-nums; }
+        .timer-label { font-size: 0.72rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 8px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .stat-row:last-child { border-bottom: none; }
+        .stat-row .lbl { color: var(--dim); }
+        .stat-row .val { font-weight: 700; }
+
+        /* Progress dots */
+        .q-dots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+        .q-dot { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: all 0.2s; color: var(--dim); }
+        .q-dot.answered { background: rgba(0,200,150,0.15); border-color: rgba(0,200,150,0.3); color: var(--green); }
+        .q-dot.current { background: rgba(0,234,255,0.15); border-color: rgba(0,234,255,0.4); color: var(--cyan); }
+
+        /* Question Panel */
+        .q-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; }
+        .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .q-badge { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .q-number { font-size: 0.85rem; color: var(--dim); margin-left: auto; }
+        .q-text { font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px; font-weight: 500; }
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-lbl {
+            display: flex; align-items: center; gap: 14px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 18px; cursor: pointer;
+            transition: all 0.2s; font-size: 0.95rem;
+        }
+        .option-lbl:hover { background: rgba(0,234,255,0.04); border-color: rgba(0,234,255,0.2); }
+        .option-lbl.selected { background: rgba(0,234,255,0.08); border-color: rgba(0,234,255,0.4); color: var(--cyan); }
+        .option-lbl input[type="radio"] { display: none; }
+        .option-indicator { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border-h); flex-shrink: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .option-lbl.selected .option-indicator { border-color: var(--cyan); background: var(--cyan); }
+        .option-lbl.selected .option-indicator::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+
+        .btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 10px; }
+        .btn { display: flex; align-items: center; gap: 7px; padding: 11px 22px; border-radius: 10px; border: none; font-family: 'Outfit'; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s; }
+        .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+        .btn-secondary:hover { border-color: var(--border-h); }
+        .btn-primary { background: linear-gradient(135deg, var(--indigo), var(--cyan)); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(106,92,255,0.3); }
+        .btn-submit { background: linear-gradient(135deg, #10b981, #00c896); color: white; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,200,150,0.25); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        /* Result */
+        .result-panel { background: var(--surface); border: 1px solid rgba(0,200,150,0.2); border-radius: 20px; padding: 40px; text-align: center; max-width: 600px; margin: 0 auto; }
+        .result-circle { width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .result-score { font-size: 2.5rem; font-weight: 800; }
+        .result-total { font-size: 0.9rem; color: var(--dim); }
+        .result-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+        .result-sub { color: var(--dim); font-size: 0.93rem; margin-bottom: 28px; line-height: 1.5; }
+        .result-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+        .result-stat { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+        .result-stat .v { font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+        .result-stat .l { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; }
+
+        @media(max-width:768px) { .sim-layout { flex-direction: column; } .sim-left { width: 100%; } .company-grid { grid-template-columns: repeat(2,1fr); } }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/dashboard" class="logo">
+        <div class="logo-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        Inferno AI
+    </a>
+    <span style="color:var(--dim);font-size:0.88rem;">Company Interview Simulation</span>
+    <a href="/dashboard" class="nav-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Dashboard
+    </a>
+</nav>
+
+<div class="main">
+
+    <!-- STEP 1: Company -->
+    <div id="step-company" class="step active">
+        <div class="step-header">
+            <div class="step-eyebrow">Step 1 of 3</div>
+            <h1>Select Company</h1>
+            <p>Choose a company to begin your specialized mock interview with real company-pattern questions.</p>
+        </div>
+        <div class="company-grid" id="company-grid"></div>
+    </div>
+
+    <!-- STEP 2: Role -->
+    <div id="step-role" class="step">
+        <div class="step-header">
+            <div class="step-eyebrow">Step 2 of 3</div>
+            <h1>Select Role at <span id="lbl-company" style="background:linear-gradient(135deg,#6a5cff,#00eaff);-webkit-background-clip:text;background-clip:text;color:transparent;"></span></h1>
+            <p>Choose the job role that matches your interview target.</p>
+        </div>
+        <div style="text-align:center;margin-bottom:20px;">
+            <button class="btn btn-secondary" onclick="showStep('step-company')" style="display:inline-flex;">← Change Company</button>
+        </div>
+        <div class="role-grid" id="role-grid"></div>
+    </div>
+
+    <!-- STEP 3: Simulation -->
+    <div id="step-sim" class="step">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+            <div>
+                <div style="font-size:0.75rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Now Simulating</div>
+                <div style="font-size:1.3rem;font-weight:700;"><span id="sim-company"></span> &nbsp;→&nbsp; <span id="sim-role" style="color:var(--cyan);"></span></div>
+            </div>
+            <div class="cat-tabs" id="cat-tabs"></div>
+        </div>
+        <div class="sim-layout">
+            <div class="sim-left">
+                <div class="sidebar-card">
+                    <div class="timer-label">Time Remaining</div>
+                    <div class="timer-box" id="timer">20:00</div>
+                </div>
+                <div class="sidebar-card">
+                    <div class="stat-row"><span class="lbl">Total</span><span class="val" id="lbl-total">—</span></div>
+                    <div class="stat-row"><span class="lbl">Attempted</span><span class="val" style="color:var(--green);" id="lbl-attempted">0</span></div>
+                    <div class="stat-row"><span class="lbl">Remaining</span><span class="val" id="lbl-left">—</span></div>
+                    <div class="q-dots" id="q-dots"></div>
+                </div>
+            </div>
+            <div class="sim-right">
+                <div class="q-panel">
+                    <div class="q-meta">
+                        <span class="q-badge" id="q-cat-badge" style="background:rgba(0,234,255,0.1);color:var(--cyan);">Aptitude</span>
+                        <span class="q-number" id="q-number">Q1 / 10</span>
+                    </div>
+                    <div class="q-text" id="q-text">Loading question...</div>
+                    <div class="options-list" id="options-area"></div>
+                    <div class="btn-row">
+                        <button class="btn btn-secondary" onclick="prevQ()" id="btn-prev">← Prev</button>
+                        <button class="btn btn-primary" onclick="nextQ()" id="btn-next">Next →</button>
+                        <button class="btn btn-submit" onclick="submitPhase()" id="btn-submit" style="display:none;">✓ Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 4: Result -->
+    <div id="step-result" class="step">
+        <div class="result-panel">
+            <div class="result-circle" id="result-circle">
+                <div class="result-score" id="result-score">0</div>
+                <div class="result-total" id="result-total">/ 0</div>
+            </div>
+            <div class="result-title" id="result-title">Simulation Complete!</div>
+            <div class="result-sub" id="result-sub">Your responses have been evaluated.</div>
+            <div class="result-stats">
+                <div class="result-stat"><div class="v" id="res-correct" style="color:var(--green);">0</div><div class="l">Correct</div></div>
+                <div class="result-stat"><div class="v" id="res-wrong" style="color:var(--red);">0</div><div class="l">Wrong</div></div>
+                <div class="result-stat"><div class="v" id="res-pct" style="color:var(--cyan);">0%</div><div class="l">Score</div></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn btn-secondary" onclick="showStep('step-company')">Try Another</button>
+                <button class="btn btn-primary" onclick="window.location.href='/dashboard'">Dashboard →</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ─── QUESTION BANK (from Accenture HR PDFs, TCS HR PDFs, Aptitude tricks, Arrays & Strings) ───
+const QUESTION_BANK = {
+
+    Accenture: {
+        HR: [
+            { q: "Tell me about yourself and why you want to join Accenture.", opts: ["Focus on skills and Accenture values", "Only mention hobbies", "Talk about salary expectations", "Describe previous failures"], ans: 0 },
+            { q: "Where do you see yourself in 5 years at Accenture?", opts: ["To become a leader and contribute to innovation", "No specific plan", "Leave after 1 year", "Work in a different company"], ans: 0 },
+            { q: "What does Accenture's core value 'Stewardship' mean?", opts: ["Fulfilling our obligation to all our stakeholders", "Generating maximum profit", "Avoiding responsibilities", "Following only internal policies"], ans: 0 },
+            { q: "How would you handle a conflict with a colleague on a project at Accenture?", opts: ["Communicate openly and find a collaborative solution", "Report immediately without discussing", "Ignore the conflict", "Take complete control of the project"], ans: 0 },
+            { q: "What do you know about Accenture's business segments?", opts: ["Strategy & Consulting, Interactive, Technology, Operations", "Only IT services", "Banking and Finance only", "Manufacturing only"], ans: 0 },
+            { q: "Why should we hire you over other candidates?", opts: ["Unique combination of skills, adaptability, and passion for the role", "Because I need the job", "I have no weaknesses", "I know the manager"], ans: 0 },
+            { q: "How do you prioritize tasks when working on multiple projects?", opts: ["Use urgency-importance matrix and communicate deadlines", "Work randomly without prioritization", "Only do the easiest tasks first", "Ask someone else to prioritize"], ans: 0 },
+            { q: "What is Accenture's full name and headquarter location?", opts: ["Accenture PLC, Dublin, Ireland", "Accenture Ltd, New York, USA", "Accenture Corp, London, UK", "Accenture Inc, Singapore"], ans: 0 },
+            { q: "Describe a time you showed leadership without a formal title.", opts: ["Volunteered to guide a team during a crisis project", "Always waited for instructions", "Avoided leadership responsibilities", "Delegated all tasks to others"], ans: 0 },
+            { q: "What are Accenture's core values as listed in their Code of Business Ethics?", opts: ["Client Value Creation, One Global Network, Respect for Individuals, Best People, Integrity, Stewardship", "Profit, Growth, Expansion", "Innovation, Speed, Risk", "Compliance only"], ans: 0 },
+        ],
+        Aptitude: [
+            { q: "A train 300m long passes a pole in 15 seconds. What is the speed of the train (km/h)?", opts: ["72 km/h", "60 km/h", "80 km/h", "54 km/h"], ans: 0 },
+            { q: "If 15 men complete a work in 12 days, how many days will 20 men take?", opts: ["9 days", "10 days", "12 days", "8 days"], ans: 0 },
+            { q: "What is 30% of 450?", opts: ["135", "150", "120", "140"], ans: 0 },
+            { q: "A product is sold at 20% profit. If CP = ₹500, what is SP?", opts: ["₹600", "₹550", "₹625", "₹580"], ans: 0 },
+            { q: "Find the next term: 2, 6, 12, 20, 30, ?", opts: ["42", "40", "44", "38"], ans: 0 },
+            { q: "A cistern is filled by two pipes in 10 and 15 mins. A drain empties it in 30 mins. Time to fill?", opts: ["10 mins", "12 mins", "15 mins", "8 mins"], ans: 1 },
+            { q: "If ROSE = 6521 and CHAIR = 73456, what is SEARCH?", opts: ["214673", "216473", "214763", "216743"], ans: 1 },
+            { q: "Two numbers are in ratio 3:4. Their LCM is 48. Their HCF is?", opts: ["4", "6", "8", "3"], ans: 0 },
+            { q: "Simple interest on ₹4000 at 5% p.a. for 3 years is?", opts: ["₹600", "₹500", "₹700", "₹650"], ans: 0 },
+            { q: "A can do a job in 20 days, B in 30 days. Together they complete it in?", opts: ["12 days", "15 days", "10 days", "8 days"], ans: 0 },
+        ],
+        DSA: [
+            { q: "What is the time complexity of binary search?", opts: ["O(log n)", "O(n)", "O(n log n)", "O(1)"], ans: 0 },
+            { q: "Which data structure uses LIFO (Last In First Out)?", opts: ["Stack", "Queue", "Linked List", "Tree"], ans: 0 },
+            { q: "What is the best-case time complexity of bubble sort?", opts: ["O(n)", "O(n²)", "O(log n)", "O(n log n)"], ans: 0 },
+            { q: "Which string algorithm finds the longest common subsequence?", opts: ["Dynamic Programming", "Greedy", "Backtracking", "Divide & Conquer"], ans: 0 },
+            { q: "Reversing a string in-place requires how much extra space?", opts: ["O(1)", "O(n)", "O(log n)", "O(n²)"], ans: 0 },
+            { q: "What is the output of reversing 'hello'?", opts: ["olleh", "hello", "hlleo", "olelh"], ans: 0 },
+            { q: "Given array [1,2,3,4,5], what does two-pointer approach find for target sum 6?", opts: ["[1,5] or [2,4]", "[3,3]", "[1,6]", "[2,3]"], ans: 0 },
+            { q: "What data structure is best for checking if a string is a palindrome?", opts: ["Stack", "Queue", "Hash Map", "Tree"], ans: 0 },
+        ]
+    },
+
+    TCS: {
+        HR: [
+            { q: "Why do you want to join TCS?", opts: ["Global exposure, learning culture, and strong growth path", "High salary only", "No other option", "Close to home"], ans: 0 },
+            { q: "What does TCS stand for?", opts: ["Tata Consultancy Services", "Technology Computing Systems", "Tata Computer Solutions", "Tech Consulting Services"], ans: 0 },
+            { q: "What is TCS's Vision?", opts: ["To be among the most respected companies in the world", "To maximize profits for shareholders", "To become the largest IT company", "To only serve Indian clients"], ans: 0 },
+            { q: "What are your strengths and how will they contribute to TCS?", opts: ["Analytical skills and teamwork aligned with TCS's collaborative culture", "I am good at everything", "I don't have any weaknesses", "I prefer solo work"], ans: 0 },
+            { q: "How do you handle working under tight deadlines at TCS?", opts: ["Break tasks into milestones, communicate proactively, prioritize ruthlessly", "Ask for extensions always", "Panic and work extra hours randomly", "Delay and blame circumstances"], ans: 0 },
+            { q: "What is TCS's flagship product?", opts: ["TCS BaNCS (Banking and Financial Services)", "TCS Cloud", "TCS Mobile", "TCS Retail Suite"], ans: 0 },
+            { q: "How would you handle a situation where you disagree with your manager?", opts: ["Respectfully present data-backed alternative view in private", "Complain to HR immediately", "Ignore and do as told regardless", "Argue publicly"], ans: 0 },
+            { q: "TCS is part of which conglomerate?", opts: ["Tata Group", "Reliance Industries", "Mahindra Group", "Infosys Group"], ans: 0 },
+            { q: "What areas does TCS operate in?", opts: ["IT, BPO, Engineering, Asset Leveraged Solutions", "Only software development", "Only banking", "Hardware manufacturing only"], ans: 0 },
+            { q: "Are you comfortable being relocated to any TCS location in India or abroad?", opts: ["Yes, flexibility is an asset I offer", "No, I want only home city", "Depends on the role only", "Only abroad"], ans: 0 },
+        ],
+        Aptitude: [
+            { q: "In a TCS NQT, if 6 men do a work in 8 days, how many days will 4 men take?", opts: ["12 days", "10 days", "14 days", "16 days"], ans: 0 },
+            { q: "Find the odd one out: 3, 5, 7, 9, 11", opts: ["9", "3", "7", "11"], ans: 0 },
+            { q: "A number when divided by 6 gives remainder 4. What is the remainder when divided by 3?", opts: ["1", "2", "0", "4"], ans: 0 },
+            { q: "What is the probability of getting a head in a coin toss?", opts: ["1/2", "1/4", "1/3", "1"], ans: 0 },
+            { q: "Rahul covers 120 km at 40 km/h. Return at 60 km/h. Average speed?", opts: ["48 km/h", "50 km/h", "45 km/h", "52 km/h"], ans: 0 },
+            { q: "Which is the next prime number after 89?", opts: ["97", "91", "93", "95"], ans: 0 },
+            { q: "If A = 1, B = 2 ... Z = 26, what is the value of CAT?", opts: ["24", "22", "26", "20"], ans: 0 },
+            { q: "A sum triples in 8 years at SI. At what rate per annum?", opts: ["25%", "20%", "30%", "15%"], ans: 0 },
+            { q: "Pointing to a man, a woman says 'his mother is the only daughter of my mother'. How is the woman related to the man?", opts: ["Mother", "Sister", "Grandmother", "Aunt"], ans: 0 },
+            { q: "What is 15% of 800?", opts: ["120", "110", "130", "140"], ans: 0 },
+        ],
+        DSA: [
+            { q: "What is the time complexity of merging two sorted arrays of size n and m?", opts: ["O(n+m)", "O(n*m)", "O(n log m)", "O(n²)"], ans: 0 },
+            { q: "Find the maximum element in an array [3,1,4,1,5,9,2,6]. Result?", opts: ["9", "6", "5", "4"], ans: 0 },
+            { q: "Which algorithm is used to check if a string is an anagram of another?", opts: ["Frequency Count / Hash Map", "Binary Search", "BFS", "Recursion"], ans: 0 },
+            { q: "What is the space complexity of Kadane's algorithm for max subarray?", opts: ["O(1)", "O(n)", "O(n²)", "O(log n)"], ans: 0 },
+            { q: "In sliding window, what problem is O(n) vs O(n²) brute force?", opts: ["Max sum subarray of size k", "Fibonacci", "Binary search", "Merge sort"], ans: 0 },
+            { q: "Count the number of vowels in 'programming'. Answer?", opts: ["3", "4", "2", "5"], ans: 0 },
+            { q: "Two pointer technique is most efficient for?", opts: ["Pair sum in sorted array", "Finding max element", "Counting occurrences", "Sorting"], ans: 0 },
+            { q: "What is the output: reverse('TCS NQT')?", opts: ["TQN SCT", "TQN CST", "TNQ SCT", "TQN CTS"], ans: 0 },
+        ]
+    },
+
+    Mahindra: {
+        HR: [
+            { q: "Why do you want to work at Mahindra?", opts: ["Innovation focus, 'Rise' philosophy, and engineering excellence", "Only for salary", "Brand name only", "No specific reason"], ans: 0 },
+            { q: "What is Mahindra's core philosophy?", opts: ["Rise — Accept no limits, Think alternatively, Drive positive change", "Profit first", "Customer last", "Speed above all"], ans: 0 },
+            { q: "How do you handle failure in a project?", opts: ["Analyze root cause, learn, and apply lessons to future projects", "Blame team members", "Ignore and move on", "Quit the project"], ans: 0 },
+            { q: "Describe a challenging situation and how you overcame it.", opts: ["Specific example with problem-action-result", "I never faced challenges", "I asked someone else to handle it", "I avoided the challenge"], ans: 0 },
+            { q: "What field does Mahindra primarily operate in?", opts: ["Automotive, IT, Farm Equipment, Financial Services", "Only Automobiles", "Banking only", "Retail only"], ans: 0 },
+        ],
+        Aptitude: [
+            { q: "Speed of a boat in still water is 10 km/h. Stream speed is 2 km/h. Upstream speed?", opts: ["8 km/h", "12 km/h", "10 km/h", "6 km/h"], ans: 0 },
+            { q: "What is the square root of 1764?", opts: ["42", "44", "46", "40"], ans: 0 },
+            { q: "Ratio of ages of A and B is 3:5. After 10 years ratio is 5:7. Find A's age now.", opts: ["15 years", "10 years", "20 years", "12 years"], ans: 0 },
+            { q: "What is the compound interest on ₹5000 at 10% for 2 years?", opts: ["₹1050", "₹1000", "₹1100", "₹950"], ans: 0 },
+            { q: "How many two-digit numbers are divisible by 7?", opts: ["13", "12", "14", "11"], ans: 0 },
+        ],
+        DSA: [
+            { q: "What is the pivot element in quicksort?", opts: ["An element used to partition the array", "The smallest element", "The last element always", "The middle element always"], ans: 0 },
+            { q: "Which complexity does heap sort guarantee?", opts: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"], ans: 0 },
+            { q: "Find the first non-repeating character in 'programming'?", opts: ["p", "r", "o", "g"], ans: 0 },
+            { q: "What is the result of reversing the array [1,2,3,4,5]?", opts: ["[5,4,3,2,1]", "[1,2,3,4,5]", "[5,3,1,4,2]", "[2,4,1,3,5]"], ans: 0 },
+            { q: "Which algorithm is optimal for detecting a cycle in a linked list?", opts: ["Floyd's Cycle Detection (Tortoise & Hare)", "DFS only", "BFS only", "Two pointer only"], ans: 0 },
+        ]
+    },
+
+    Cognizant: {
+        HR: [
+            { q: "What do you know about Cognizant?", opts: ["Global IT services & consulting company HQ'd in Teaneck NJ, founded 1994", "Indian company based in Chennai", "Hardware manufacture company", "A startup"], ans: 0 },
+            { q: "How do you stay updated with technology trends relevant to Cognizant's work?", opts: ["Read tech blogs, attend webinars, complete certifications, build projects", "Only study when required", "Ask colleagues only", "I don't follow trends"], ans: 0 },
+            { q: "What is Cognizant's 'Work Differently' initiative about?", opts: ["Reimagining work with digital technology for hybrid models", "Reducing workforce", "Moving all work offline", "Eliminating remote work"], ans: 0 },
+            { q: "How do you handle criticism from a team lead?", opts: ["Accept it professionally, ask for specifics, and improve accordingly", "Argue back immediately", "Ignore it", "Escalate to HR"], ans: 0 },
+            { q: "What is Cognizant's ticker symbol on NASDAQ?", opts: ["CTSH", "CTS", "COG", "CGT"], ans: 0 },
+        ],
+        Aptitude: [
+            { q: "If the price of a book is increased by 25% and then decreased by 20%, what is the net change?", opts: ["0%", "+5%", "-5%", "+10%"], ans: 0 },
+            { q: "In 12 minutes, a clock gains 5 seconds. How many minutes does it show fast after 6 hours?", opts: ["150 seconds", "100 seconds", "120 seconds", "90 seconds"], ans: 0 },
+            { q: "A and B started walking toward each other from 200m. A at 5 m/s, B at 3 m/s. Time to meet?", opts: ["25 seconds", "20 seconds", "40 seconds", "30 seconds"], ans: 0 },
+            { q: "What is 40% of 3/4 of 5000?", opts: ["1500", "1200", "2000", "1800"], ans: 0 },
+            { q: "LOGICAL REASONING: If all A are B, some B are C. Then?", opts: ["Some A may be C", "All C are A", "No A is C", "All A are C"], ans: 0 },
+        ],
+        DSA: [
+            { q: "What is the output of 'hello world'.split(' ')?", opts: ["['hello', 'world']", "['hello world']", "('hello','world')", "None"], ans: 0 },
+            { q: "Time complexity of finding duplicates in an array using a hash set?", opts: ["O(n)", "O(n²)", "O(log n)", "O(n log n)"], ans: 0 },
+            { q: "Which sorting algorithm is stable?", opts: ["Merge Sort", "Quick Sort", "Heap Sort", "Selection Sort"], ans: 0 },
+            { q: "Longest Common Prefix of ['flower','flow','flight'] is?", opts: ["'fl'", "'flo'", "'f'", "''"], ans: 0 },
+            { q: "What does 'return s == s[::-1]' check in Python?", opts: ["Whether s is a palindrome", "Reverse of s", "Length of s", "First character of s"], ans: 0 },
+        ]
+    },
+
+    Capgemini: {
+        HR: [
+            { q: "What do you know about Capgemini as a company?", opts: ["French multinational IT & consulting company, founded 1967, HQ Paris", "American company", "Indian IT firm", "German engineering firm"], ans: 0 },
+            { q: "Capgemini's 7 core values include?", opts: ["Honesty, Boldness, Trust, Freedom, Fun, Modesty, Team Spirit", "Profit, Speed, Authority, Risk", "Compliance, Control, Power, Size", "Innovation, Competition, Speed, Growth"], ans: 0 },
+            { q: "How would you contribute to Capgemini's digital transformation services?", opts: ["Bring strong technical skills, adaptability, and client-first mindset", "Just follow orders", "Focus only on internal tools", "Not sure"], ans: 0 },
+            { q: "Tell me about a time you worked in a diverse team.", opts: ["Specific example showing communication and collaboration across backgrounds", "I never had diverse teams", "I prefer homogenous teams", "I avoid diversity discussions"], ans: 0 },
+            { q: "What is Capgemini's flagship learning platform?", opts: ["Next", "LearningHub", "iLearn", "Edutech"], ans: 0 },
+        ],
+        Aptitude: [
+            { q: "A shopkeeper buys 12 apples for ₹10 and sells 10 apples for ₹12. Profit %?", opts: ["44%", "40%", "50%", "36%"], ans: 0 },
+            { q: "What comes next in the series: 1, 4, 9, 16, 25, ?", opts: ["36", "30", "35", "40"], ans: 0 },
+            { q: "If PENCIL is coded as RGPEKN, how is ERASER coded?", opts: ["GTCUGT", "GTEURT", "GTERUG", "GTEUGR"], ans: 0 },
+            { q: "Average of 5 consecutive numbers is 15. What is the largest number?", opts: ["17", "18", "16", "19"], ans: 0 },
+            { q: "In how many ways can the letters of APPLE be arranged?", opts: ["60", "120", "30", "180"], ans: 0 },
+        ],
+        DSA: [
+            { q: "What is the worst-case time complexity of QuickSort?", opts: ["O(n²)", "O(n log n)", "O(n)", "O(log n)"], ans: 0 },
+            { q: "How many times does 'a' appear in 'banana'?", opts: ["3", "2", "4", "1"], ans: 0 },
+            { q: "What is the output of sorted([3,1,4,1,5,9,2,6])?", opts: ["[1,1,2,3,4,5,6,9]", "[9,6,5,4,3,2,1,1]", "[3,1,4,1,5,9,2,6]", "[1,2,3,4,5,6,9]"], ans: 0 },
+            { q: "Matrix 2D array access time complexity?", opts: ["O(1)", "O(n)", "O(n²)", "O(log n)"], ans: 0 },
+            { q: "Which traversal visits nodes: Left → Root → Right?", opts: ["In-order", "Pre-order", "Post-order", "Level-order"], ans: 0 },
+        ]
+    }
+};
+
+const COMPANIES = [
+    { name: "Accenture", emoji: "🟣", type: "Tech & Consulting" },
+    { name: "TCS",        emoji: "🔵", type: "IT Services" },
+    { name: "Mahindra",   emoji: "🔴", type: "Auto & Tech" },
+    { name: "Cognizant",  emoji: "🟠", type: "Digital Services" },
+    { name: "Capgemini",  emoji: "🟢", type: "IT & Consulting" }
+];
+
+const ROLES = [
+    { name: "SDE",             icon: "💻", desc: "Software Dev Engineer" },
+    { name: "Data Analyst",    icon: "📊", desc: "Data & BI Analyst" },
+    { name: "Data Scientist",  icon: "🧪", desc: "ML / Data Science" },
+    { name: "HR",              icon: "🤝", desc: "Human Resources" },
+    { name: "Project Manager", icon: "📋", desc: "PM / Delivery" },
+    { name: "QA Engineer",     icon: "✅", desc: "Testing & Quality" }
+];
+
+// ─── STATE ───
+let selectedCompany = "";
+let selectedRole    = "";
+let activeQuestions = [];
+let answers         = [];
+let currentIdx      = 0;
+let timerInterval   = null;
+let timeLeft        = 20 * 60;
+let phases          = ['Aptitude', 'DSA', 'HR'];
+let phaseIdx        = 0;
+let phaseScores     = { Aptitude: 0, DSA: 0, HR: 0 };
+let currentCat      = "Aptitude";
+
+// ─── RENDER COMPANIES ───
+const cgrid = document.getElementById('company-grid');
+COMPANIES.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'company-card';
+    d.innerHTML = `<span class="company-emoji">${c.emoji}</span><h3>${c.name}</h3><p class="type">${c.type}</p>`;
+    d.onclick = () => selectCompany(c.name);
+    cgrid.appendChild(d);
+});
+
+// ─── RENDER ROLES ───
+const rgrid = document.getElementById('role-grid');
+ROLES.forEach(r => {
+    const d = document.createElement('div');
+    d.className = 'role-card';
+    d.innerHTML = `<div class="role-icon" style="background:rgba(0,234,255,0.08);">${r.icon}</div><div><h3>${r.name}</h3><p>${r.desc}</p></div>`;
+    d.onclick = () => selectRole(r.name);
+    rgrid.appendChild(d);
+});
+
+function showStep(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function selectCompany(name) {
+    selectedCompany = name;
+    document.getElementById('lbl-company').textContent = name;
+    showStep('step-role');
+}
+
+function selectRole(name) {
+    selectedRole = name;
+    document.getElementById('sim-company').textContent = selectedCompany;
+    document.getElementById('sim-role').textContent = selectedRole;
+    
+    phaseIdx = 0;
+    phaseScores = { Aptitude: 0, DSA: 0, HR: 0 };
+    buildCategoryTabs();
+    showStep('step-sim');
+    loadCategory(phases[phaseIdx]);
+    startTimer();
+}
+
+function buildCategoryTabs() {
+    const tabs = document.getElementById('cat-tabs');
+    tabs.innerHTML = `<div style="font-size:0.85rem;color:var(--dim);font-weight:600;">Phase: <span style="color:var(--cyan);">${phases[phaseIdx]}</span> / 3</div>`;
+}
+
+function loadCategory(cat) {
+    currentCat = cat;
+
+    const bank = QUESTION_BANK[selectedCompany] || QUESTION_BANK['Accenture'];
+    activeQuestions = (bank[cat] || bank['HR']).slice(0, 10);
+    answers = new Array(activeQuestions.length).fill(null);
+    currentIdx = 0;
+
+    document.getElementById('lbl-total').textContent = activeQuestions.length;
+    document.getElementById('lbl-left').textContent = activeQuestions.length;
+    renderDots();
+    loadQ();
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timeLeft = 20 * 60;
+    timerInterval = setInterval(() => {
+        if (timeLeft <= 0) { clearInterval(timerInterval); submitPhase(); return; }
+        timeLeft--;
+        const m = String(Math.floor(timeLeft/60)).padStart(2,'0');
+        const s = String(timeLeft%60).padStart(2,'0');
+        const timerEl = document.getElementById('timer');
+        timerEl.textContent = `${m}:${s}`;
+        if (timeLeft < 120) timerEl.style.color = 'var(--red)';
+        if (timeLeft < 300) timerEl.style.animation = 'none';
+    }, 1000);
+}
+
+function renderDots() {
+    const dots = document.getElementById('q-dots');
+    dots.innerHTML = activeQuestions.map((_, i) => {
+        let cls = 'q-dot';
+        if (i === currentIdx) cls += ' current';
+        else if (answers[i] !== null) cls += ' answered';
+        return `<div class="${cls}" onclick="jumpTo(${i})">${i+1}</div>`;
+    }).join('');
+}
+
+function jumpTo(idx) {
+    currentIdx = idx;
+    loadQ();
+}
+
+function loadQ() {
+    const q = activeQuestions[currentIdx];
+    document.getElementById('q-number').textContent = `Q${currentIdx+1} / ${activeQuestions.length}`;
+    document.getElementById('q-cat-badge').textContent = currentCat;
+    document.getElementById('q-text').textContent = q.q;
+
+    const optsHtml = q.opts.map((o, i) => {
+        const sel = answers[currentIdx] === i ? 'selected' : '';
+        return `<label class="option-lbl ${sel}" onclick="selectAnswer(${i})">
+            <input type="radio" name="opt" value="${i}" ${sel ? 'checked' : ''}>
+            <div class="option-indicator"></div>
+            ${o}
+        </label>`;
+    }).join('');
+    document.getElementById('options-area').innerHTML = optsHtml;
+
+    document.getElementById('btn-prev').disabled = currentIdx === 0;
+    const isLast = currentIdx === activeQuestions.length - 1;
+    document.getElementById('btn-next').style.display = isLast ? 'none' : 'flex';
+    document.getElementById('btn-submit').style.display = isLast ? 'flex' : 'none';
+
+    updateStats();
+    renderDots();
+}
+
+function selectAnswer(idx) {
+    answers[currentIdx] = idx;
+    loadQ();
+}
+
+function nextQ() { if (currentIdx < activeQuestions.length - 1) { currentIdx++; loadQ(); } }
+function prevQ() { if (currentIdx > 0) { currentIdx--; loadQ(); } }
+
+function updateStats() {
+    const attempted = answers.filter(a => a !== null).length;
+    document.getElementById('lbl-attempted').textContent = attempted;
+    document.getElementById('lbl-left').textContent = activeQuestions.length - attempted;
+}
+
+async function submitPhase() {
+    clearInterval(timerInterval);
+    let correct = 0;
+    activeQuestions.forEach((q, i) => { if (answers[i] === q.ans) correct++; });
+    const total = activeQuestions.length;
+    const pct = Math.round((correct / total) * 100);
+    
+    phaseScores[currentCat] = pct;
+
+    if (phaseIdx < phases.length - 1) {
+        phaseIdx++;
+        buildCategoryTabs();
+        loadCategory(phases[phaseIdx]);
+        startTimer(); // Reset timer for next phase
+    } else {
+        submitFinalSimulation();
+    }
+}
+
+async function submitFinalSimulation() {
+    const total_pct = Math.round((phaseScores.Aptitude + phaseScores.DSA + phaseScores.HR) / 3);
+    document.getElementById('btn-submit').textContent = "Processing...";
+    document.getElementById('btn-submit').disabled = true;
+
+    try {
+        const res = await fetch('/api/submit_company_simulation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                company: selectedCompany, 
+                role: selectedRole, 
+                apti_score: phaseScores.Aptitude,
+                dsa_score: phaseScores.DSA,
+                hr_score: phaseScores.HR,
+                total_pct: total_pct
+            })
+        });
+        const data = await res.json();
+        
+        let color = '#00c896', title = '🏆 Excellent Result!';
+        if (total_pct < 40) { color = '#ff4d6d'; title = '❌ Needs Improvement'; }
+        else if (total_pct < 65) { color = '#fbbf24'; title = '⚡ Good Attempt'; }
+        else if (total_pct < 80) { color = '#6a5cff'; title = '✅ Strong Performance'; }
+
+        showStep('step-result');
+
+        const circle = document.getElementById('result-circle');
+        circle.style.background = `conic-gradient(${color} ${total_pct*3.6}deg, rgba(255,255,255,0.05) 0deg)`;
+        circle.style.boxShadow = `0 0 40px ${color}33`;
+        const inner = `<div style="position:absolute;inset:10px;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;"><div class="result-score" style="color:${color};">${total_pct}%</div><div class="result-total">Overall</div></div>`;
+        circle.innerHTML = inner;
+
+        document.getElementById('result-title').textContent = title;
+        document.getElementById('result-sub').textContent = data.ai_feedback || `You scored ${total_pct}% overall.`;
+        
+        document.getElementById('res-correct').textContent = phaseScores.Aptitude + '%';
+        document.getElementById('res-correct').nextElementSibling.textContent = 'Aptitude';
+        
+        document.getElementById('res-wrong').textContent = phaseScores.DSA + '%';
+        document.getElementById('res-wrong').nextElementSibling.textContent = 'DSA';
+        document.getElementById('res-wrong').style.color = "var(--text)";
+        
+        document.getElementById('res-pct').textContent = phaseScores.HR + '%';
+        document.getElementById('res-pct').nextElementSibling.textContent = 'HR';
+    } catch(e) { console.error('Save failed', e); }
+
+    document.getElementById('btn-submit').textContent = "✓ Submit";
+    document.getElementById('btn-submit').disabled = false;
+}
+
+document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+</script>
+</body>
+</html>

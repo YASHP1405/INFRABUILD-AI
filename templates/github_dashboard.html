@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Placement Intelligence Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #0f172a;
+            color: white;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            background: #1e293b;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            background: #334155;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            background: #22c55e;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #16a34a;
+        }
+
+        .section {
+            margin-top: 40px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1e293b;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        🚀 Placement Intelligence Dashboard
+    </header>
+
+    <div class="container">
+
+        <!-- MAIN CARDS -->
+        <div class="grid">
+
+            <!-- GitHub Analyzer -->
+            <div class="card" onclick="showSection('githubSection')">
+                <h3>🔍 GitHub Analyzer</h3>
+                <p>Analyze candidate GitHub repository</p>
+            </div>
+
+            <!-- DSA Practice -->
+            <div class="card" onclick="goToDSA()">
+                <h3>💻 DSA Practice Arena</h3>
+                <p>Practice coding & prepare for interviews</p>
+            </div>
+
+            <!-- Resume Analyzer -->
+            <div class="card">
+                <h3>📄 Resume Analyzer</h3>
+                <p>Coming Soon</p>
+            </div>
+
+        </div>
+
+        <!-- GITHUB SECTION -->
+        <div id="githubSection" class="section hidden">
+
+            <h2>🔍 GitHub Analyzer</h2>
+
+            <input id="repo_url" placeholder="Enter GitHub Repo URL">
+            <input id="email" placeholder="Candidate Email">
+
+            <button onclick="analyzeRepo()">Analyze Repo</button>
+
+            <!-- QUESTIONS -->
+            <div id="questionsSection" class="hidden">
+                <h3>🧠 Answer Questions</h3>
+                <div id="questions"></div>
+
+                <button onclick="submitAnswers()">Submit Answers</button>
+            </div>
+
+            <!-- RESULT -->
+            <div id="resultSection" class="hidden result"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let analysisId = null;
+        let questionsList = [];
+
+        // Show section
+        function showSection(id) {
+            document.getElementById("githubSection").classList.add("hidden");
+            document.getElementById(id).classList.remove("hidden");
+        }
+
+        // DSA Redirect
+        function goToDSA() {
+            window.location.href = "/practice";
+        }
+
+        // Analyze Repo
+        async function analyzeRepo() {
+
+            const repo_url = document.getElementById("repo_url").value;
+            const email = document.getElementById("email").value;
+
+            const res = await fetch("/github/analyze", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    repo_url,
+                    candidate_email: email
+                })
+            });
+
+            if (!res.ok) {
+                alert("Server Error");
+                return;
+            }
+            const data = await res.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            analysisId = data.analysis_id;
+            questionsList = data.questions;
+
+            let qHTML = "";
+            data.questions.forEach((q, i) => {
+                qHTML += `
+            <p><b>Q${i + 1}:</b> ${q}</p>
+            <textarea id="ans${i}"></textarea>
+        `;
+            });
+
+            document.getElementById("questions").innerHTML = qHTML;
+            document.getElementById("questionsSection").classList.remove("hidden");
+        }
+
+        // Submit Answers
+        async function submitAnswers() {
+
+            let answers = [];
+
+            for (let i = 0; i < questionsList.length; i++) {
+                answers.push(document.getElementById(`ans${i}`).value);
+            }
+
+            const res = await fetch("/github/evaluate_answers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    analysis_id: analysisId,
+                    answers: answers
+                })
+            });
+
+            const data = await res.json();
+
+            let feedbackHTML = `<h3>🎯 Score: ${data.score}</h3>`;
+
+            if (data.feedback) {
+                data.feedback.forEach((f, i) => {
+                    feedbackHTML += `
+                <p><b>Q${i + 1} Feedback:</b> ${f.feedback || "N/A"}</p>
+            `;
+                });
+            }
+
+            document.getElementById("resultSection").innerHTML = feedbackHTML;
+            document.getElementById("resultSection").classList.remove("hidden");
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platform Modules | Inferno AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glow-indigo: rgba(99, 102, 241, 0.4);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: radial-gradient(circle at 30% 20%, #1e1b4b 0%, #0f172a 40%, #020617 100%);
+        color: #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 40px 24px 60px;
+        overflow-x: hidden;
+      }
+
+      /* Animated background particles */
+      .bg-orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+        animation: float-orb 8s ease-in-out infinite;
+      }
+      .orb1 { width: 400px; height: 400px; background: rgba(99,102,241,0.15); top: -100px; left: -100px; }
+      .orb2 { width: 300px; height: 300px; background: rgba(192,132,252,0.1); bottom: -50px; right: -50px; animation-delay: -4s; }
+      .orb3 { width: 200px; height: 200px; background: rgba(251,113,133,0.08); top: 50%; left: 50%; animation-delay: -2s; }
+
+      @keyframes float-orb {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(20px, -20px) scale(1.05); }
+      }
+
+      /* Navigation bar */
+      .top-nav {
+        width: 100%;
+        max-width: 1100px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 48px;
+        position: relative;
+        z-index: 10;
+      }
+      .nav-logo {
+        font-size: 1.1rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .nav-back {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+      }
+      .nav-back:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+      /* Glassmorphism */
+      .glass-panel {
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+      }
+
+      /* Shimmer */
+      .shimmer {
+        position: absolute;
+        top: 0; left: -100%;
+        width: 50%; height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.08) 50%, transparent);
+        transform: skewX(-25deg);
+        transition: 0.75s;
+        pointer-events: none;
+      }
+      .module-card:hover .shimmer { left: 150%; }
+
+      /* Glow text */
+      .glow-text {
+        background: linear-gradient(to right, #818cf8, #c084fc, #fb7185);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      /* Ripple */
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        transform: scale(0);
+        animation: ripple-anim 0.6s linear;
+        background-color: rgba(255,255,255,0.2);
+        pointer-events: none;
+        width: 80px; height: 80px;
+        margin-left: -40px; margin-top: -40px;
+      }
+      @keyframes ripple-anim {
+        to { transform: scale(4); opacity: 0; }
+      }
+
+      /* Loading overlay */
+      #loader {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.85);
+        backdrop-filter: blur(8px);
+        z-index: 1000;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+      }
+      #loader p { color: #818cf8; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; }
+
+      /* Module card */
+      .module-card {
+        cursor: pointer;
+        border-radius: 1.25rem;
+        background: rgba(15, 23, 42, 0.5);
+        color: #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.07);
+        position: relative;
+        opacity: 1 !important;  /* Ensure visibility even if GSAP fails */
+        overflow: hidden;
+        text-align: left;
+        padding: 28px 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: block;
+        width: 100%;
+      }
+      .module-card:hover {
+        background: rgba(15, 23, 42, 0.75);
+        transform: translateY(-4px) scale(1.02);
+      }
+      .module-card:focus {
+        outline: 2px solid #6366f1;
+        outline-offset: 2px;
+      }
+
+      /* Icon container */
+      .card-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 16px;
+        transition: transform 0.3s;
+      }
+      .module-card:hover .card-icon { transform: scale(1.15) rotate(5deg); }
+
+      .card-icon svg { width: 26px; height: 26px; }
+
+      /* Status badge */
+      .card-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      /* Grid */
+      .module-grid {
+        width: 100%;
+        max-width: 1100px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Header */
+      .page-header {
+        text-align: center;
+        width: 100%;
+        max-width: 700px;
+        margin-bottom: 48px;
+        position: relative;
+        z-index: 10;
+      }
+      .page-header h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin: 0 0 12px;
+        line-height: 1.1;
+      }
+      .page-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Arrow indicator */
+      .card-arrow {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255,255,255,0.15);
+        transition: all 0.3s;
+      }
+      .module-card:hover .card-arrow {
+        color: rgba(255,255,255,0.5);
+        right: 14px;
+      }
+
+      @media (max-width: 640px) {
+        body { padding: 24px 16px 40px; }
+        .page-header h1 { font-size: 2rem; }
+        .module-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background orbs -->
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+    <div class="bg-orb orb3"></div>
+
+    <!-- Loading overlay -->
+    <div id="loader">
+      <div style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.2);border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      <p>Launching Module...</p>
+    </div>
+
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+    <!-- Top Nav -->
+    <nav class="top-nav">
+      <span class="nav-logo">⚡ Inferno AI</span>
+      <a href="/dashboard" class="nav-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Dashboard
+      </a>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header">
+      <h1 class="glow-text">Platform Modules ✨</h1>
+      <p>Accelerate your career with our integrated suite of AI-powered engineering tools and simulators.</p>
+    </header>
+
+    <!-- Module Grid -->
+    <nav id="module-grid" class="module-grid" aria-label="Platform modules">
+
+      <!-- Coding Simulator -->
+      <button onclick="navigate('/coding')" class="module-card glass-panel" id="btn-coding" aria-label="Open Coding Simulator">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(99,102,241,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Coding Simulator</h3>
+          <span class="card-badge" style="background:rgba(99,102,241,0.15);color:#818cf8;">Live</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">AI-powered code editor, real-time evaluation, and voice-based logic reasoning.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Cognitive Test -->
+      <button onclick="navigate('/cognitive')" class="module-card glass-panel" id="btn-cognitive" aria-label="Open Cognitive Test">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(192,132,252,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Cognitive Test</h3>
+          <span class="card-badge" style="background:rgba(192,132,252,0.15);color:#c084fc;">Aptitude</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">AI-driven logic, quantitative, and engineering assessment questions.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Verbal Reasoning -->
+      <button onclick="navigate('/cognitive?mode=verbal')" class="module-card glass-panel" id="btn-verbal" aria-label="Open Verbal Reasoning">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(236,72,153,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Verbal Reasoning</h3>
+          <span class="card-badge" style="background:rgba(236,72,153,0.15);color:#ec4899;">Language</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Test your vocab and ensure language proficiency for corporate readiness.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- GitHub Analyzer -->
+      <button onclick="navigate('/github-analyzer')" class="module-card glass-panel" id="btn-github" aria-label="Open GitHub Analyzer">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(148,163,184,0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">GitHub Analyzer</h3>
+          <span class="card-badge" style="background:rgba(148,163,184,0.1);color:#94a3b8;">Intelligence</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Repository health metrics, ownership verification, and code quality scoring.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Practice Arena -->
+      <button onclick="navigate('/practice')" class="module-card glass-panel" id="btn-practice" aria-label="Open Practice Arena">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(244,63,94,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fb7185" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Practice Arena</h3>
+          <span class="card-badge" style="background:rgba(244,63,94,0.12);color:#fb7185;">DSA</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Socratic AI coach, code analysis, and adaptive DSA problem generation.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Job Matches -->
+      <button onclick="navigate('/job_recommendations')" class="module-card glass-panel" id="btn-jobs" aria-label="Open Job Matches">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(34,197,94,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Job Matches</h3>
+          <span class="card-badge" style="background:rgba(34,197,94,0.12);color:#4ade80;">AI Match</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">AI-curated job recommendations based on your verified skill profile.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Mock Code Review -->
+      <button onclick="navigate('/mock_review')" class="module-card glass-panel" id="btn-review" aria-label="Open Mock Code Review">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(14,165,233,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Mock Code Review</h3>
+          <span class="card-badge" style="background:rgba(14,165,233,0.12);color:#38bdf8;">Senior Sim</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Review real-world PRs with security and performance flaws. AI evaluates your feedback.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- Company Simulation -->
+      <button onclick="navigate('/company_simulation')" class="module-card glass-panel" id="btn-simulation" aria-label="Open Company Simulation">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(245,158,11,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">Company Simulation</h3>
+          <span class="card-badge" style="background:rgba(245,158,11,0.12);color:#fbbf24;">TCS · Accenture</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Company-specific MCQ interviews — Accenture, TCS, Capgemini, Cognizant & more.</p>
+        <div class="card-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <!-- HR Login -->
+      <button onclick="navigate('/hr-login')" class="module-card glass-panel" id="btn-hr" aria-label="Open HR Dashboard" style="border-color:rgba(245,158,11,0.15);">
+        <div class="shimmer"></div>
+        <div class="card-icon" style="background:rgba(249,115,22,0.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:1.05rem;font-weight:600;color:#fff;">HR Dashboard</h3>
+          <span class="card-badge" style="background:rgba(249,115,22,0.12);color:#fb923c;">Enterprise</span>
+        </div>
+        <p style="font-size:0.85rem;color:#64748b;margin:0;line-height:1.5;">Manage candidates, view reports, and access company-level analytics.</p>
+        <div class="card-arrow" style="right:20px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+      </button>
+
+    </nav>
+
+    <script>
+      // Navigation with loading
+      function navigate(route) {
+        const loader = document.getElementById("loader");
+        loader.style.display = "flex";
+        setTimeout(() => {
+          try { window.location.href = route; }
+          catch (e) { loader.style.display = "none"; }
+        }, 800);
+      }
+
+      // Ripple effect
+      document.querySelectorAll(".module-card").forEach(card => {
+        card.addEventListener("click", function(e) {
+          const ripple = document.createElement("span");
+          const rect = this.getBoundingClientRect();
+          ripple.style.left = (e.clientX - rect.left) + "px";
+          ripple.style.top = (e.clientY - rect.top) + "px";
+          ripple.classList.add("ripple");
+          this.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 700);
+        });
+      });
+
+      // GSAP Animations (safe: set initial state first, then animate TO visible)
+      try {
+        // Set initial hidden state first
+        gsap.set(".page-header", { opacity: 0, y: -30 });
+        gsap.set(".top-nav", { opacity: 0, y: -20 });
+        gsap.set(".module-card", { opacity: 0, y: 40 });
+
+        // Animate TO visible state
+        gsap.to(".page-header", { duration: 0.9, opacity: 1, y: 0, ease: "power3.out" });
+        gsap.to(".top-nav", { duration: 0.7, opacity: 1, y: 0, ease: "power2.out" });
+        gsap.to(".module-card", {
+          duration: 0.6,
+          y: 0,
+          opacity: 1,
+          stagger: 0.08,
+          ease: "power3.out",
+          delay: 0.2
+        });
+      } catch(e) {
+        // If GSAP fails, force all elements visible
+        console.warn('GSAP animation failed, showing elements:', e);
+        document.querySelectorAll('.module-card, .page-header, .top-nav').forEach(el => {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }
+
+      // Escape to cancel loading
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+          document.getElementById("loader").style.display = "none";
+        }
+      });
+
+      // SAFETY NET: Force all cards visible after 2 seconds, no matter what
+      setTimeout(() => {
+        document.querySelectorAll('.module-card, .page-header, .top-nav').forEach(el => {
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0)';
+        });
+      }, 2000);
+    </script>
+  </body>
+</html>
